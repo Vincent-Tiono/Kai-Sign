@@ -16,6 +16,12 @@ contract KaiSign {
         Rejected
     }
 
+    event LogCreateSpec(address indexed creator, bytes32 specID, string ipfs);
+
+    event LogProposeSpec(address indexed proposer, bytes32 specID, bytes32 questionId);
+
+    event LogHandleResult(bytes32 specID, bool isAccepted);
+
     struct ERC7730Spec {
         uint64 createdTimestamp;
         Status status;
@@ -38,6 +44,7 @@ contract KaiSign {
         bytes32 specID = keccak256(bytes(ipfs));
         require(specs[specID].createdTimestamp == 0, "Already proposed");
         specs[specID] = ERC7730Spec(uint64(block.timestamp), Status.Submitted, ipfs, bytes32(0));
+        emit LogCreateSpec(msg.sender, specID, ipfs);
     }
 
     function proposeSpecByHash(bytes32 specID) public payable {
@@ -49,6 +56,7 @@ contract KaiSign {
         // Put in the first answer with a bond
         // Any subsequent challenges can happen in the oracle app
         RealityETH_v3_0(realityETH).submitAnswerFor{value: msg.value}(questionId, bytes32(uint256(1)), 0, msg.sender);
+        emit LogProposeSpec(msg.sender, specID, questionId);
     }
 
     function proposeSpec(string calldata ipfs) external payable {
@@ -59,6 +67,7 @@ contract KaiSign {
         // This will revert if it's not complete yet
         bytes32 result = RealityETH_v3_0(realityETH).resultFor(specs[specID].questionId);
         specs[specID].status = (uint256(result) == uint256(1)) ? Status.Accepted : Status.Rejected;
+        emit LogHandleResult(specID, (specs[specID].status == Status.Accepted));
     }
 
     function handleResult(string calldata ipfs) external {

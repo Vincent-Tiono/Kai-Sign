@@ -18,7 +18,7 @@ contract KaiSignTest is Test {
         kaisign.createSpec(ipfs_hash);
     }
 
-    function test_submitEntryCreatesEntry() public {
+    function test_submitEntryCreatesEntry() public view {
         string memory ipfs_hash = "Qmbdr7gTLeWZYLVHALapahbcDQtsGDvoYRcVS73QYGnTmk";
         bytes32 id = keccak256(bytes(ipfs_hash));
         assertGt(kaisign.getCreatedTimestamp(id), 0);
