@@ -20,8 +20,7 @@ contract KaiSignTest is Test {
 
     function test_submitEntryCreatesEntry() public view {
         string memory ipfs_hash = "Qmbdr7gTLeWZYLVHALapahbcDQtsGDvoYRcVS73QYGnTmk";
-        bytes32 id = keccak256(bytes(ipfs_hash));
-        assertGt(kaisign.getCreatedTimestamp(id), 0);
+        assertGt(kaisign.getCreatedTimestamp(ipfs_hash), 0);
     }
 
     function test_submitDuplicateEntryFails() public {
@@ -49,7 +48,7 @@ contract KaiSignTest is Test {
         kaisign.proposeSpec{value: minBond}(ipfs_hash);
         assertFalse(kaisign.isAccepted(ipfs_hash));
 
-        bytes32 questionId = kaisign.getQuestionId(keccak256(bytes(ipfs_hash)));
+        bytes32 questionId = kaisign.getQuestionId(ipfs_hash);
         RealityETH_v3_0(realityETH).submitAnswer{value: minBond * 2}(questionId, bytes32(uint256(0)), 0);
 
         vm.warp(block.timestamp + timeout + 1);

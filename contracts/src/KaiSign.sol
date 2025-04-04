@@ -74,19 +74,39 @@ contract KaiSign {
         handleResultByHash(keccak256(bytes(ipfs)));
     }
 
-    function getCreatedTimestamp(bytes32 id) external view returns (uint64) {
+    function getCreatedTimestampByHash(bytes32 id) external view returns (uint64) {
         return specs[id].createdTimestamp;
     }
 
-    function getStatus(bytes32 id) external view returns (Status) {
+    function getCreatedTimestamp(string calldata ipfs) external view returns (uint64) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].createdTimestamp;
+    }
+
+    function getStatusByHash(bytes32 id) external view returns (Status) {
         return specs[id].status;
     }
 
-    function getIPFS(bytes32 id) external view returns (string memory) {
+    function getStatus(string calldata ipfs) external view returns (Status) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].status;
+    }
+
+    function getIPFSByHash(bytes32 id) external view returns (string memory) {
         return specs[id].ipfs;
     }
 
-    function getQuestionId(bytes32 id) external view returns (bytes32) {
+    function getIPFS(string calldata ipfs) external view returns (string memory) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].ipfs;
+    }
+
+    function getQuestionIdByHash(bytes32 id) external view returns (bytes32) {
+        return specs[id].questionId;
+    }
+
+    function getQuestionId(string calldata ipfs) external view returns (bytes32) {
+        bytes32 id = keccak256(bytes(ipfs));
         return specs[id].questionId;
     }
 
