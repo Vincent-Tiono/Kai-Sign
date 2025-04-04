@@ -5,6 +5,7 @@ import BackToEdit from "./backToEdit";
 import ReviewJson from "./reviewJson";
 import SelectValidOperation from "./selectValidOperation";
 import OperationNotValidated from "./operationNotValidated";
+import DownloadJsonButton from "./downloadJsonButton";
 
 export default async function Home() {
   return (
@@ -18,6 +19,7 @@ export default async function Home() {
             <div className="flex items-center gap-4">
               <OperationNotValidated />
               <BackToEdit />
+              <DownloadJsonButton />
               <ReviewJson />
             </div>
           </div>

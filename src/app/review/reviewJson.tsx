@@ -1,6 +1,6 @@
 "use client";
 
-import { FileJson } from "lucide-react";
+import { FileJson, Copy, Download } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import * as React from "react";
 
@@ -18,6 +18,28 @@ export function ReviewJson() {
     toast({
       title: "JSON copied to clipboard!",
     });
+  };
+  
+  const handleDownloadJson = () => {
+    if (erc7730) {
+      const jsonData = JSON.stringify(erc7730, null, 2);
+      const blob = new Blob([jsonData], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "erc7730-specification.json";
+      document.body.appendChild(a);
+      a.click();
+      
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "JSON downloaded!",
+        description: "The complete ERC7730 JSON file has been saved to your downloads folder."
+      });
+    }
   };
 
   return (
@@ -45,7 +67,16 @@ export function ReviewJson() {
         <pre className="max-h-64 overflow-auto rounded border bg-gray-100 p-4 text-sm dark:text-black">
           {JSON.stringify(erc7730, null, 2)}
         </pre>
-        <Button onClick={handleCopyToClipboard}>Copy JSON to Clipboard</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={handleCopyToClipboard}>
+            <Copy className="mr-2 h-4 w-4" />
+            Copy to Clipboard
+          </Button>
+          <Button onClick={handleDownloadJson} variant="secondary">
+            <Download className="mr-2 h-4 w-4" />
+            Download JSON
+          </Button>
+        </div>
       </div>
     </ResponsiveDialog>
   );
