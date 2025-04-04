@@ -5,7 +5,6 @@ import {Script, console} from "forge-std/Script.sol";
 import {KaiSign} from "../src/KaiSign.sol";
 
 contract KaiSignScript is Script {
-
     // Oracle settings for sepolia from:
     // https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/chains/deployments/11155111/ETH/RealityETH-3.0.json
     address realityETH = 0xaf33DcB6E8c5c4D9dDF579f53031b514d19449CA; // reality.eth 3.0 sepolia
