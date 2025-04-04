@@ -2,13 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {Counter} from "../src/Counter.sol";
+import {KaiSign} from "../src/KaiSign.sol";
 
-contract CounterTest is Test {
-    Counter public counter;
+contract KaiSignTest is Test {
+    KaiSign public counter;
 
     function setUp() public {
-        counter = new Counter();
+        counter = new KaiSign();
         counter.setNumber(0);
     }
 
