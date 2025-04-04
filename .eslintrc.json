@@ -1,0 +1,7 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignores": [
+    "**/api-types.ts",
+    "./src/server/api/routers/pythonInteraction/api-types.ts"
+  ]
+}
