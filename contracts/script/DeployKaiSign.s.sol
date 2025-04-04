@@ -5,19 +5,22 @@ import {Script, console} from "forge-std/Script.sol";
 import {KaiSign} from "../src/KaiSign.sol";
 
 contract KaiSignScript is Script {
-    // Oracle settings for sepolia from:
-    // https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/chains/deployments/11155111/ETH/RealityETH-3.0.json
-    address realityETH = 0xaf33DcB6E8c5c4D9dDF579f53031b514d19449CA; // reality.eth 3.0 sepolia
-    address arbitrator = 0x05B942fAEcfB3924970E3A28e0F230910CEDFF45; // kleros arbitrator sepolia
+    struct DeployParameters {
+        address arbitrator;
+        uint256 minBond;
+        address realityETH;
+        uint32 timeout;
+    }
 
-    uint256 minBond = 100000000000000;
-    uint32 timeout = 60; // special short timeout for demos
+    string json = vm.readFile(string.concat(vm.projectRoot(), "/script/input/params.json"));
+    bytes data = vm.parseJson(json);
+    DeployParameters params = abi.decode(data, (DeployParameters));
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
-        new KaiSign(realityETH, arbitrator, minBond, timeout);
+        new KaiSign(params.realityETH, params.arbitrator, params.minBond, params.timeout);
         vm.stopBroadcast();
     }
 }
