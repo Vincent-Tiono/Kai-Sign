@@ -34,6 +34,14 @@ contract KaiSignTest is Test {
         kaisign.proposeSpec{value: minBond}(ipfs_hash);
     }
 
+    function test_challengeEntry() public {
+        string memory ipfs_hash = "Qmbdr7gTLeWZYLVHALapahbcDQtsGDvoYRcVS73QYGnTmk";
+        kaisign.proposeSpec{value: minBond}(ipfs_hash);
+        kaisign.assertSpecInvalid{value: minBond * 2}(ipfs_hash);
+        bytes32 questionId = kaisign.getQuestionId(ipfs_hash);
+        assertEq(realityETH.getBestAnswer(questionId), bytes32(0));
+    }
+
     function test_getResultAcceptance() public {
         string memory ipfs_hash = "Qmbdr7gTLeWZYLVHALapahbcDQtsGDvoYRcVS73QYGnTmk";
         kaisign.proposeSpec{value: minBond}(ipfs_hash);
