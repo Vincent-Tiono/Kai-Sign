@@ -3,6 +3,7 @@
 import { FileJson, Copy, Download } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 
 import { ResponsiveDialog } from "~/components/ui/responsiveDialog";
 import { useErc7730Store } from "~/store/erc7730Provider";
@@ -12,6 +13,7 @@ export function ReviewJson() {
   const [open, setOpen] = React.useState(false);
   const erc7730 = useErc7730Store((s) => s.finalErc7730);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleCopyToClipboard = () => {
     void navigator.clipboard.writeText(JSON.stringify(erc7730, null, 2));
@@ -41,10 +43,18 @@ export function ReviewJson() {
       });
     }
   };
+  
+  const handleContinue = () => {
+    // Close the dialog
+    setOpen(false);
+    
+    // Navigate to the verification-results page
+    router.push("/verification-results");
+  };
 
   return (
     <ResponsiveDialog
-      dialogTrigger={<Button variant="outline">Submit</Button>}
+      dialogTrigger={<Button variant="outline">Next</Button>}
       dialogTitle="Submit your JSON"
       open={open}
       setOpen={setOpen}
@@ -75,6 +85,11 @@ export function ReviewJson() {
           <Button onClick={handleDownloadJson} variant="secondary">
             <Download className="mr-2 h-4 w-4" />
             Download JSON
+          </Button>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button onClick={handleContinue}>
+            Continue to Verification
           </Button>
         </div>
       </div>
