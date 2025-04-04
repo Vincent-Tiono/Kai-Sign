@@ -11,9 +11,10 @@ abstract contract DeployParam is Script {
         uint32 timeout;
     }
 
-    function getDeployParams() internal returns (DeployParams memory) {
+    function getDeployParams() internal view returns (DeployParams memory) {
         string memory json = vm.readFile(string.concat(vm.projectRoot(), "/script/input/params.json"));
         bytes memory data = vm.parseJson(json);
         DeployParams memory params = abi.decode(data, (DeployParams));
+        return params;
     }
 }
