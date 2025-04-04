@@ -2,6 +2,10 @@
 pragma solidity ^0.8.13;
 
 contract KaiSign {
+    uint256 minBond;
+    address realityETH;
+    address arbitrator;
+
     enum Status {
         Submitted,
         Accepted,
@@ -14,6 +18,12 @@ contract KaiSign {
         string ipfs;
     }
 
+    constructor(address _realityETH, address _arbitrator, uint256 _minBond) public {
+        realityETH = _realityETH;
+        arbitrator = _arbitrator;
+        minBond = _minBond;
+    }
+
     mapping(bytes32 => ERC7730Spec) public specs;
 
     function createSpec(string calldata ipfs) external {
@@ -22,15 +32,15 @@ contract KaiSign {
         specs[specID] = ERC7730Spec(uint64(block.timestamp), Status.Submitted, ipfs);
     }
 
-    function getCreatedTimestamp(bytes32 id) external returns (uint64) {
+    function getCreatedTimestamp(bytes32 id) external view returns (uint64) {
         return specs[id].createdTimestamp;
     }
 
-    function getStatus(bytes32 id) external returns (Status) {
+    function getStatus(bytes32 id) external view returns (Status) {
         return specs[id].status;
     }
 
-    function getIPFS(bytes32 id) external returns (string memory) {
+    function getIPFS(bytes32 id) external view returns (string memory) {
         return specs[id].ipfs;
     }
 }

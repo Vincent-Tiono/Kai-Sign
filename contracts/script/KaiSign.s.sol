@@ -12,7 +12,7 @@ contract KaiSignScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        counter = new KaiSign();
+        //counter = new KaiSign();
 
         vm.stopBroadcast();
     }

@@ -6,9 +6,11 @@ import {KaiSign} from "../src/KaiSign.sol";
 
 contract KaiSignTest is Test {
     KaiSign public kaisign;
+    address public realityETH;
+    address public arbitrator;
 
     function setUp() public {
-        kaisign = new KaiSign();
+        kaisign = new KaiSign(realityETH, arbitrator, uint256(1000000000000000));
         string memory ipfs_hash = "Qmbdr7gTLeWZYLVHALapahbcDQtsGDvoYRcVS73QYGnTmk";
         kaisign.createSpec(ipfs_hash);
     }
