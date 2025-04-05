@@ -9,7 +9,7 @@ export default async function Home() {
         <div>
           <h1 className="mb-6 flex items-center justify-between text-2xl font-bold">
             <span>
-              ERC7730 Json builder <span className="text-red-500">Alpha</span>
+              ERC7730 Json Builder <span className="text-red-500">By 開Sign</span>
             </span>
             <ModeToggle />
           </h1>

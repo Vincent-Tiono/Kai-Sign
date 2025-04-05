@@ -292,7 +292,7 @@ export default function FileUploader() {
         {verificationStatus === "success" && !ipfsHash && (
           <div className="flex items-center gap-2 text-green-500 mt-4">
             <CheckCircle className="h-5 w-5" />
-            <span>File verified successfully!</span>
+            <span>File verification process started!</span>
           </div>
         )}
         
