@@ -431,76 +431,29 @@ export default function VerificationStatusPage() {
             {getStatusDisplay()}
           </div>
           
-          {finalizationTimestamp || createdTimestampValue ? (
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Verification Timing</h3>
-              <div className="p-4 bg-gray-800 rounded-lg flex flex-col gap-3">
-                <div className="flex items-center">
-                  <Clock className="h-5 w-5 text-blue-400 mr-3" />
-                  <div>
-                    <p className="text-gray-300 font-medium">
-                      Finalization Time: {formatFinalizationTime(
-                        finalizationTimestamp || '',
-                        timeoutValue || undefined,
-                        createdTimestampValue || undefined
-                      )}
-                    </p>
-                    {timeRemaining && (
-                      <p className={`mt-1 text-sm font-bold ${timeRemaining.includes("passed") ? "text-green-500" : "text-amber-500"}`}>
-                        {timeRemaining}
-                      </p>
-                    )}
-                    
-                    <div className="mt-2 text-xs text-gray-400">
-                      {finalizationTimestamp && (
-                        <p>Using scheduled finalization timestamp: {new Date(parseInt(finalizationTimestamp) * 1000).toLocaleString()}</p>
-                      )}
-                      {!finalizationTimestamp && timeoutValue && createdTimestampValue && (
-                        <p>
-                          Using creation time ({new Date(parseInt(createdTimestampValue) * 1000).toLocaleString()}) + 
-                          timeout ({parseInt(timeoutValue) / 60} minutes)
-                        </p>
-                      )}
-                      {!finalizationTimestamp && !timeoutValue && createdTimestampValue && (
-                        <p>
-                          Using creation time ({new Date(parseInt(createdTimestampValue) * 1000).toLocaleString()}) + 
-                          default timeout (15 minutes)
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                {canFinalize ? (
-                  <div className="mt-1 p-3 bg-green-900/30 border border-green-600 rounded-lg">
-                    <p className="text-green-400 font-medium flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Verification period has ended. You can now fetch the result.
-                    </p>
-                    {finalizationTimestamp && (
-                      <p className="text-xs text-green-500/60 mt-1">
-                        Finalization became available at: {new Date(parseInt(finalizationTimestamp) * 1000).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="mt-1 p-3 bg-amber-900/30 border border-amber-600 rounded-lg">
-                    <p className="text-amber-400 font-medium flex items-center">
-                      <Clock className="h-4 w-4 mr-2" />
-                      Verification is still in the waiting period. Please check back later.
-                    </p>
-                    <p className="text-xs text-amber-500/60 mt-1">
-                      Expected finalization time: {formatFinalizationTime(
-                        finalizationTimestamp || '',
-                        timeoutValue || '900',
-                        createdTimestampValue || String(Math.floor(Date.now() / 1000 - 900))
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-2">Raw API Data</h3>
+            <div className="p-4 bg-gray-800 rounded-lg">
+              <p className="text-gray-300 font-medium mb-2">
+                Full Question ID format: 
+              </p>
+              <code className="font-mono text-sm bg-gray-900 px-3 py-2 rounded block break-all">
+                {questionId?.includes("-") ? questionId : `0xaf33dcb6e8c5c4d9ddf579f53031b514d19449ca-${questionId}`}
+              </code>
+              
+              <p className="text-gray-300 font-medium mb-2 mt-4">
+                currentScheduledFinalizationTimestamp: 
+              </p>
+              <code className="font-mono text-sm bg-gray-900 px-3 py-2 rounded block break-all">
+                {finalizationTimestamp || "Not available from API"}
+              </code>
+              {finalizationTimestamp && (
+                <p className="mt-2 text-xs text-gray-400">
+                  Unix timestamp in seconds. JavaScript Date: {new Date(parseInt(finalizationTimestamp) * 1000).toLocaleString()}
+                </p>
+              )}
             </div>
-          ) : null}
+          </div>
           
           <div className="flex justify-between mt-8">
             <Link href="/verification-results">

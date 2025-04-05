@@ -32,6 +32,19 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
   try {
     console.log("Fetching Reality.eth question data for ID:", questionId);
     
+    // Get reality.eth contract address from env or use default
+    const realityEthContract = getEnvVar(
+      "REALITY_ETH_CONTRACT",
+      "0xaf33DcB6E8c5c4D9dDF579f53031b514d19449CA"
+    );
+    
+    // Construct the full ID in format contractAddress-questionId
+    const fullQuestionId = questionId.includes("-") 
+      ? questionId // Already in the correct format
+      : `${realityEthContract.toLowerCase()}-${questionId}`;
+    
+    console.log("Using full question ID format:", fullQuestionId);
+    
     // First try a schema introspection query to check if the API is working and what fields are available
     try {
       const introspectionQuery = `
@@ -84,7 +97,7 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
     // Format 1: Standard query
     const standardQuery = `
       {
-        question(id: "${questionId}") {
+        question(id: "${fullQuestionId}") {
           id
           currentAnswer
           currentAnswerBond
@@ -99,7 +112,7 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
     // Format 2: Explicit "where" clause
     const whereQuery = `
       {
-        question(where: {id: "${questionId}"}) {
+        question(where: {id: "${fullQuestionId}"}) {
           id
           currentAnswer
           currentAnswerBond
@@ -114,7 +127,7 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
     // Format 3: Using questions (plural) query with filter
     const questionsQuery = `
       {
-        questions(where: {id: "${questionId}"}, first: 1) {
+        questions(where: {id: "${fullQuestionId}"}, first: 1) {
           id
           currentAnswer
           currentAnswerBond
@@ -187,11 +200,11 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
     }
     
     // Try one more approach - search by hash prefix
-    if (questionId.length >= 10) {
+    if (fullQuestionId.length >= 10) {
       try {
         const prefixQuery = `
           {
-            questions(where: {id_contains: "${questionId.substring(0, 10)}"}, first: 10) {
+            questions(where: {id_contains: "${fullQuestionId.substring(0, 10)}"}, first: 10) {
               id
               currentAnswer
               currentAnswerBond
@@ -218,7 +231,7 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
         
         if (prefixData.data?.questions && prefixData.data.questions.length > 0) {
           // Find the question with matching ID or closest match
-          const exactMatch = prefixData.data.questions.find((q: any) => q.id === questionId);
+          const exactMatch = prefixData.data.questions.find((q: any) => q.id === fullQuestionId);
           
           if (exactMatch) {
             console.log("Found exact match with prefix search:", exactMatch);
