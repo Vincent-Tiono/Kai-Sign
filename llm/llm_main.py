@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='./.env', override=True)
 
 # Configuration
-DB_FILE = "processed_hashes.json"
+DB_FILE = "/tmp/processed_hashes.json"
 MAX_HASHES = 100
 ETH_RPC_URL = os.getenv('SEPOLIA_RPC_URL')
 CONTRACT_ABI_PATH = "../contracts/abi/RealityETH_v3_0.json"
@@ -55,11 +55,12 @@ def load_processed_hashes():
 
 def save_processed_hashes(processed_hashes):
     """Save the list of processed IPFS hashes, maintaining FIFO with max size."""
-    if len(processed_hashes) > MAX_HASHES:
-        processed_hashes = processed_hashes[-MAX_HASHES:]
+    # if len(processed_hashes) > MAX_HASHES:
+    #     processed_hashes = processed_hashes[-MAX_HASHES:]
     
-    with open(DB_FILE, 'w') as f:
-        json.dump(processed_hashes, f, indent=2)
+    # with open(DB_FILE, 'w') as f:
+    #     json.dump(processed_hashes, f, indent=2)
+    continue
 
 def submit_challenge(question_id, current_bond, contract_address):
     """Submit a challenge to the contract for a false evaluation using submitAnswer."""

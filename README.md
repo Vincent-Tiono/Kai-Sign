@@ -1,32 +1,32 @@
 # Kai-Sign
-This is the repository for the project Kai-Sign.
 
-## Project Overview
+## What this is for
+
+People keep losing money because they don't know what their wallets are signing. ByBit lost 1.4 Billion dollars. Ledger made a standard called ERC7730 to help describe contract actions in English so they the wallet can display them to the user. But it uses a centralized repo controlled by them. Other hardware wallets don't want to use that.
+
+We built a tool for decentralized on-chain curation of ERC7730 specs using the reality.eth optimistic oracle and Kleros, and we forked the [Ledger ERC7730 creation tool](https://github.com/LedgerHQ/clear-signing-erc7730-builder) to link it up to the on-chain system. 
+
+We also built an AI bot to detect bad ERC7730 submissions and challenge them. Anyone can run their own bot and improve on it and make money by detecting bad submissions.
+
+## Workflow
+
 Kai-Sign is a platform where users can create and verify ERC7730 metadata. The workflow involves:
 
 1. Users build ERC7730 metadata specifications
-2. These specifications are sent to Reality.eth, a crowdsourced market verification system
+2. These specifications are sent to Reality.eth, a crowdsourced verification system using an escalation game, backstopped by Kleros.
 3. After passing verification, the metadata is curated and displayed on a single page
 
 This approach ensures trusted and verified metadata through decentralized consensus mechanisms.
 
 ## Core Team
 
-Team of talented engineers, web developers and the founder of reality.eth, a crowdsourced market collaborated with Kleros.
+Three students from the National Taiwan University and two guys they met on Discord.
 
 - [Vincent-Tiono](https://github.com/Vincent-Tiono)
 - [Nathanael349](https://github.com/Nathanael349)
 - [keithlim123](https://github.com/keithlim123)
-- [edmundedgar](https://github.com/edmundedgar)
+- [edmundedgar](https://github.com/edmundedgar) (built [reality.eth](https://reality.eth.link/) )
 - [muhammadaus](https://github.com/muhammadaus)
-
-## Integration with MultiBaas from Curvegrid
-
-- **MultiBaas REST API** integration directly for blockchain data access
-- **Event Queries** for verified metadata updates
-- **Direct frontend app development** using CORS origins for secure cross-origin requests
-
-*refer to the setup instructions below for more
 
 ## Deploying the contracts
 
@@ -35,6 +35,15 @@ Copy `env.example` to `.env` and fill in the blanks.
 Fill in `script/input/params.json`
 
 `forge script --chain sepolia script/DeployKaiSign.s.sol --private-key $PRIVATE_KEY --rpc-url $SEPOLIA_RPC_URL --etherscan-api-key $ETHERSCAN_API_KEY --broadcast --verify`
+
+### Deployed contracts
+(main repository)
+
+Sepolia: [0x2d2f90786a365a2044324f6861697e9EF341F858](https://sepolia.etherscan.io/address/0x2d2f90786a365a2044324f6861697e9EF341F858)
+
+(celo-deployment repository)
+
+Celo: [0x64b1601A844F2E83715168E2f7C3e05135CBaB0a](https://celoscan.io/address/0x64b1601A844F2E83715168E2f7C3e05135CBaB0a)
 
 ## Using the contracts from forge
 
@@ -49,6 +58,14 @@ Fill in `script/input/params.json`
 ### Oppose a spec
 
 `forge script --chain sepolia script/OpposeSpec.s.sol --private-key $PRIVATE_KEY --rpc-url $SEPOLIA_RPC_URL --broadcast --sig="run(address,string,uint256)"`
+
+## Integration with MultiBaas from Curvegrid
+
+- **MultiBaas REST API** integration directly for blockchain data access
+- **Event Queries** for verified metadata updates
+- **Direct frontend app development** using CORS origins for secure cross-origin requests
+
+*refer to the setup instructions below for more
 
 ## MultiBaas Setup and Testing
 
@@ -157,4 +174,4 @@ Note: Cloud Wallet usage requires Azure registration
 
 ### Slide Deck for MultiBaas integration.
 
-- [Download Multibaas Slide Deck](Multibaas-slide-deck/Multibaas.pdf)
+- [Multibaas Slide Deck](Multibaas-slide-deck/Multibaas.pdf)

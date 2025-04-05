@@ -15,6 +15,7 @@ import json
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+# load_dotenv()
 
 def load_env():
     etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
