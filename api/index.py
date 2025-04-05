@@ -56,7 +56,8 @@ def run_erc7730(params: Props):
         if (params.address):
             result = generate_descriptor(
                 chain_id=chain_id,
-                contract_address=params.address
+                # contract_address=params.address
+                contract_address='0xdeadbeef00000000000000000000000000000000'
             )
             
         if result is None:
