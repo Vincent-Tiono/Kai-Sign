@@ -1,4 +1,4 @@
-/* @tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -88,6 +88,7 @@ html {
   }
 }
 
+/* Page transitions */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -103,7 +104,7 @@ html {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
-
+/* Float animation for GIFs */
 @keyframes float {
   0% {
     transform: translateY(0px);
@@ -124,6 +125,7 @@ html {
   animation: float 5s ease-in-out infinite reverse;
 }
 
+/* Glow animation */
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px rgba(102, 75, 218, 0.6);
@@ -140,12 +142,12 @@ html {
   animation: glow 4s ease-in-out infinite;
 }
 
-
+/* Glow effects */
 .text-glow {
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
 }
 
-
+/* Gradient overlay */
 .gradient-overlay {
   position: absolute;
   top: 0;
@@ -158,7 +160,7 @@ html {
   z-index: -1;
 }
 
-
+/* Glass effect */
 .glass-card {
   background: rgba(31, 15, 76, 0.2);
   backdrop-filter: blur(10px);
@@ -166,7 +168,7 @@ html {
   border: 1px solid rgba(102, 75, 218, 0.3);
 }
 
-
+/* Button hover effect */
 .hover-lift {
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
@@ -176,7 +178,7 @@ html {
   box-shadow: 0 10px 25px -5px rgba(102, 75, 218, 0.5);
 }
 
-
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -194,7 +196,7 @@ html {
   background: rgba(102, 75, 218, 0.7);
 }
 
-
+/* Animations for floating NFT icons */
 @keyframes driftAcross {
   0% { transform: translateX(-100%); opacity: 0; }
   10% { opacity: 1; }
@@ -209,7 +211,7 @@ html {
   75% { transform: translateY(-12px) rotate(-5deg); }
 }
 
-
+/* Animation for rocket ship */
 @keyframes rocketFly {
   0% { 
     transform: translateX(-150px) translateY(0) rotate(0deg); 
@@ -259,88 +261,4 @@ html {
 .animation-delay-4 { animation-delay: 15s; }
 .animation-delay-5 { animation-delay: 20s; }
 .animation-delay-6 { animation-delay: 30s; }
-.animation-delay-7 { animation-delay: 60s; }*/
-
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-  .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+.animation-delay-7 { animation-delay: 60s; }

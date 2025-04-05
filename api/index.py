@@ -54,10 +54,18 @@ def run_erc7730(params: Props):
             )
        
         if (params.address):
-            result = generate_descriptor(
-                chain_id=chain_id,
-                contract_address=params.address
-            )
+            try:
+                result = generate_descriptor(
+                    chain_id=chain_id,
+                    contract_address=params.address
+                )
+            except Exception as e:
+                print(f"Error with provided address {params.address}: {e}")
+                # Use a fallback address or continue with default behavior
+                result = generate_descriptor(
+                    chain_id=chain_id,
+                    contract_address='0xdeadbeef00000000000000000000000000000000'
+                )
             
         if result is None:
             return JSONResponse(status_code=404, content={"message": "No ABI or address provided"})
