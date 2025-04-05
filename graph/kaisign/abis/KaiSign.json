@@ -1,0 +1,349 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_realityETH", "type": "address", "internalType": "address" },
+      { "name": "_arbitrator", "type": "address", "internalType": "address" },
+      { "name": "_minBond", "type": "uint256", "internalType": "uint256" },
+      { "name": "_timeout", "type": "uint32", "internalType": "uint32" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "LogAssertSpecInvalid",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "specID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "questionId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bond",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LogAssertSpecValid",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "specID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "questionId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bond",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LogCreateSpec",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "specID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "ipfs",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LogHandleResult",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "specID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "isAccepted",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LogProposeSpec",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "specID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "questionId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bond",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "arbitrator",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "assertSpecInvalid",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "assertSpecInvalidByHash",
+    "type": "function",
+    "inputs": [
+      { "name": "specID", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "assertSpecValid",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "assertSpecValidByHash",
+    "type": "function",
+    "inputs": [
+      { "name": "specID", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "createSpec",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "getCreatedTimestamp",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getCreatedTimestampByHash",
+    "type": "function",
+    "inputs": [{ "name": "id", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [{ "name": "", "type": "uint64", "internalType": "uint64" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getIPFS",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getIPFSByHash",
+    "type": "function",
+    "inputs": [{ "name": "id", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getQuestionId",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getQuestionIdByHash",
+    "type": "function",
+    "inputs": [{ "name": "id", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getStatus",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [
+      { "name": "", "type": "uint8", "internalType": "enum KaiSign.Status" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getStatusByHash",
+    "type": "function",
+    "inputs": [{ "name": "id", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [
+      { "name": "", "type": "uint8", "internalType": "enum KaiSign.Status" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "handleResult",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "handleResultByHash",
+    "type": "function",
+    "inputs": [
+      { "name": "specID", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "isAccepted",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "isAcceptedByHash",
+    "type": "function",
+    "inputs": [{ "name": "id", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "minBond",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "proposeSpec",
+    "type": "function",
+    "inputs": [{ "name": "ipfs", "type": "string", "internalType": "string" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "proposeSpecByHash",
+    "type": "function",
+    "inputs": [
+      { "name": "specID", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "name": "realityETH",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "specs",
+    "type": "function",
+    "inputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [
+      {
+        "name": "createdTimestamp",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum KaiSign.Status"
+      },
+      { "name": "ipfs", "type": "string", "internalType": "string" },
+      { "name": "questionId", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "templateId",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "timeout",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint32", "internalType": "uint32" }],
+    "stateMutability": "view"
+  }
+]

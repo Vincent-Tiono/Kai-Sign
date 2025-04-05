@@ -1,0 +1,51 @@
+type LogAssertSpecInvalid @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  specID: Bytes! # bytes32
+  questionId: Bytes! # bytes32
+  bond: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LogAssertSpecValid @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  specID: Bytes! # bytes32
+  questionId: Bytes! # bytes32
+  bond: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LogCreateSpec @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  specID: Bytes! # bytes32
+  ipfs: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LogHandleResult @entity(immutable: true) {
+  id: Bytes!
+  specID: Bytes! # bytes32
+  isAccepted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LogProposeSpec @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  specID: Bytes! # bytes32
+  questionId: Bytes! # bytes32
+  bond: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
