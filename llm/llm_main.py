@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='./.env', override=True)
 
 # Configuration
-DB_FILE = "processed_hashes.json"
+DB_FILE = "/tmp/processed_hashes.json"
 MAX_HASHES = 100
 ETH_RPC_URL = os.getenv('SEPOLIA_RPC_URL')
 CONTRACT_ABI_PATH = "../contracts/abi/RealityETH_v3_0.json"
