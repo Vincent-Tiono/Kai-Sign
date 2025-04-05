@@ -2,7 +2,7 @@
 
 ## What this is for
 
-People keep losing money because they don't know what their wallets are signing. ByBit lost 1.4 Billion dollars. Ledger made a standard to help describe contract actions in English so they the wallet can display them to the user. But it uses a centralized repo controlled by them. Other hardware wallets don't want to use that.
+People keep losing money because they don't know what their wallets are signing. ByBit lost 1.4 Billion dollars. Ledger made a standard called ERC7730 to help describe contract actions in English so they the wallet can display them to the user. But it uses a centralized repo controlled by them. Other hardware wallets don't want to use that.
 
 We built a tool for decentralized on-chain curation of ERC7730 specs using the reality.eth optimistic oracle and Kleros, and we forked the Ledger ERC7730 creation tool to access it. 
 
