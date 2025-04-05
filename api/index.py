@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 from dotenv import load_dotenv
 import os
 # Import the patched version of generate_descriptor
-from erc7730_patched import generate_descriptor
+from erc7730.generate.generate import generate_descriptor
 from erc7730.model.input.descriptor import InputERC7730Descriptor
 import os
 import traceback
