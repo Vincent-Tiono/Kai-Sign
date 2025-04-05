@@ -20,12 +20,12 @@ This approach ensures trusted and verified metadata through decentralized consen
 
 ## Core Team
 
-Team of talented engineers, web developers and the founder of reality.eth, a crowdsourced market collaborated with Kleros.
+Three students from the National Taiwan University and two guys they met on Discord.
 
 - [Vincent-Tiono](https://github.com/Vincent-Tiono)
 - [Nathanael349](https://github.com/Nathanael349)
 - [keithlim123](https://github.com/keithlim123)
-- [edmundedgar](https://github.com/edmundedgar)
+- [edmundedgar](https://github.com/edmundedgar) (built reality.eth)
 - [muhammadaus](https://github.com/muhammadaus)
 
 ## Integration with MultiBaas from Curvegrid
