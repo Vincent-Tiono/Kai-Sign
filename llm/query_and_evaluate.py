@@ -23,7 +23,8 @@ def query_the_graph(contract_address, api_key):
         {{
           questions(where: {{user: "{contract_address}"}}) {{
             questionId,
-            data
+            data,
+            lastBond
           }}
         }}
         """,
@@ -41,6 +42,26 @@ def query_the_graph(contract_address, api_key):
     except requests.exceptions.RequestException as e:
         print("Bad")
         sys.exit(1)
+
+def extract_question_data(response_data):
+    """Extract question data including questionId, data (IPFS hash), and bond."""
+    questions = []
+    
+    print(f"Extracting question data from response: {json.dumps(response_data, indent=2)}")
+    
+    if response_data and 'data' in response_data and response_data['data'] and 'questions' in response_data['data']:
+        for question in response_data['data']['questions']:
+            if 'questionId' in question and 'data' in question:
+                questions.append({
+                    'questionId': question['questionId'],
+                    'data': question['data'],  # IPFS hash
+                    'bond': question.get('lastBond', '0')  # Default to 0 if not present
+                })
+                print(f"Found question: {question['questionId']} with data hash: {question['data']}")
+    else:
+        print("No questions found in response data or malformed response")
+    
+    return questions
 
 def extract_ipfs_hashes(response_data):
     """Extract IPFS hashes from the query response."""
@@ -110,23 +131,31 @@ def main():
     # Query The Graph API
     response_data = query_the_graph(contract_address, api_key)
     
-    # Extract IPFS hashes
-    ipfs_hashes = extract_ipfs_hashes(response_data)
+    # Extract question data
+    questions = extract_question_data(response_data)
     
-    if not ipfs_hashes:
+    if not questions:
         print("Bad")
         result = False
         return result
     
-    # Process first IPFS hash
-    ipfs_hash = ipfs_hashes[0]
+    # Process first question
+    question = questions[0]
+    ipfs_hash = question['data']
     
     # Fetch content from IPFS (needed for evaluation)
     content = fetch_ipfs_content(ipfs_hash)
     
     # Evaluate the IPFS hash
     result = evaluate_ipfs_hash(ipfs_hash)
-    return result
+    
+    # Return all the needed data
+    return {
+        'result': result,
+        'questionId': question['questionId'],
+        'data': ipfs_hash,
+        'bond': question['bond']
+    }
 
 if __name__ == "__main__":
     main()
