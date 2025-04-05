@@ -1,3 +1,13 @@
+type Spec @entity(immutable: false) {
+  id: Bytes!
+  user: Bytes! # address
+  ipfs: String! # string
+  questionId: Bytes # bytes32
+  blockTimestamp: BigInt
+  isFinalized: Boolean
+  isAccepted: Boolean
+}
+
 type LogAssertSpecInvalid @entity(immutable: true) {
   id: Bytes!
   user: Bytes! # address

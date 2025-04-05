@@ -10,7 +10,8 @@ import {
   LogAssertSpecValid,
   LogCreateSpec,
   LogHandleResult,
-  LogProposeSpec
+  LogProposeSpec,
+  Spec
 } from "../generated/schema"
 
 export function handleLogAssertSpecInvalid(
@@ -60,6 +61,13 @@ export function handleLogCreateSpec(event: LogCreateSpecEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  let spec = new Spec(
+    event.params.specID
+  )
+  spec.user = event.params.user
+  spec.ipfs = event.params.ipfs
+  spec.save()
 }
 
 export function handleLogHandleResult(event: LogHandleResultEvent): void {
@@ -74,6 +82,12 @@ export function handleLogHandleResult(event: LogHandleResultEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  let spec = Spec.load(event.params.specID)
+  if (spec != null) {
+    spec.isFinalized = true
+    spec.isAccepted = event.params.isAccepted
+  }
 }
 
 export function handleLogProposeSpec(event: LogProposeSpecEvent): void {
@@ -90,4 +104,10 @@ export function handleLogProposeSpec(event: LogProposeSpecEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  let spec = Spec.load(event.params.specID)
+  if (spec != null) {
+    spec.questionId = event.params.questionId;
+    spec.save()
+  }
 }

@@ -16,6 +16,7 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
+        - Spec
         - LogAssertSpecInvalid
         - LogAssertSpecValid
         - LogCreateSpec
