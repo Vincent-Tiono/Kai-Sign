@@ -36,8 +36,8 @@ const CONTRACT_ABI = [
 ];
 
 // Fixed contract address on Sepolia - all lowercase for safety
+// const RAW_CONTRACT_ADDRESS = "0x738e4a08Dc003c95E32A2Ef73C6aF4A6c50D107B";
 const RAW_CONTRACT_ADDRESS = "0x328bffe9fc25cc02096a50da549b83b2c87b0101";
-
 // Sepolia chain ID
 const SEPOLIA_CHAIN_ID = 11155111;
 
@@ -162,7 +162,6 @@ export class Web3Service {
       // Then propose with a bond
       const proposeTx = await this.contract.proposeSpec(ipfsHash, { 
         value: bondAmount,
-        gasLimit: 500000 // Add explicit gas limit
       });
       
       console.log("Propose transaction sent:", proposeTx.hash);
