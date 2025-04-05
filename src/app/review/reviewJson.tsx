@@ -62,17 +62,7 @@ export function ReviewJson() {
       <div className="space-y-4 p-4 md:p-0">
         <p className="text-sm text-gray-600">
           Before submitting, please review your JSON. If everything looks good,
-          copy it to your clipboard and create a pull request in the following
-          repository:
-          <a
-            href="https://github.com/LedgerHQ/clear-signing-erc7730-registry"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            LedgerHQ Clear Signing ERC7730 Registry
-          </a>
-          .
+          copy it to your clipboard and press the "Continue to Verification" button.
         </p>
         <pre className="max-h-64 overflow-auto rounded border bg-gray-100 p-4 text-sm dark:text-black">
           {JSON.stringify(erc7730, null, 2)}
