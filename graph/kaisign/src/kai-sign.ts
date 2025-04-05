@@ -87,6 +87,7 @@ export function handleLogHandleResult(event: LogHandleResultEvent): void {
   if (spec != null) {
     spec.isFinalized = true
     spec.isAccepted = event.params.isAccepted
+    spec.save()
   }
 }
 
