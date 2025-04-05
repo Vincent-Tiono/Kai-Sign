@@ -1,5 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { sample } from "./index";
+import { contractEventsRouter } from "./contractEvents";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { sample } from "./index";
  */
 export const appRouter = createTRPCRouter({
   sample,
+  contractEvents: contractEventsRouter,
 });
 
 // export type definition of API
