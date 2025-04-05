@@ -10,6 +10,17 @@ declare global {
   }
 }
 
+// Type for contract methods to handle TS errors
+type ContractWithMethods = ethers.Contract & {
+  minBond: () => Promise<bigint>;
+  createSpec: (ipfsHash: string) => Promise<any>;
+  proposeSpec: (ipfsHash: string, options: { value: bigint }) => Promise<any>;
+  handleResult: (ipfsHash: string) => Promise<any>;
+  getQuestionId: (ipfsHash: string) => Promise<string>;
+  getStatus: (ipfsHash: string) => Promise<number>;
+  isAccepted: (ipfsHash: string) => Promise<boolean>;
+};
+
 // ABI for the KaiSign contract (based on the contract functions we need)
 const CONTRACT_ABI = [
   {
@@ -32,6 +43,34 @@ const CONTRACT_ABI = [
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "string", "name": "ipfs", "type": "string"}],
+    "name": "handleResult",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "string", "name": "ipfs", "type": "string"}],
+    "name": "getQuestionId",
+    "outputs": [{"internalType": "bytes32", "name": "", "type": "bytes32"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "string", "name": "ipfs", "type": "string"}],
+    "name": "getStatus",
+    "outputs": [{"internalType": "enum KaiSign.Status", "name": "", "type": "uint8"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "string", "name": "ipfs", "type": "string"}],
+    "name": "isAccepted",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 
@@ -43,7 +82,7 @@ const SEPOLIA_CHAIN_ID = 11155111;
 export class Web3Service {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.Signer | null = null;
-  private contract: ethers.Contract | null = null;
+  private contract: ContractWithMethods | null = null;
   
   /**
    * Connect to MetaMask and set up the provider, signer, and contract
@@ -77,9 +116,7 @@ export class Web3Service {
         checksummedAddress,
         CONTRACT_ABI,
         this.signer
-      );
-      
-      // Skip testing the contract connection with minBond
+      ) as unknown as ContractWithMethods;
       
       return accounts[0];
     } catch (error) {
@@ -117,7 +154,7 @@ export class Web3Service {
       console.log("Bond amount:", bondAmount.toString());
       
       try {
-        // Create the spec first
+        // Create the spec first - we know contract is not null here
         const createTx = await this.contract.createSpec(ipfsHash);
         console.log("Create transaction sent:", createTx.hash);
         await createTx.wait();
@@ -127,7 +164,7 @@ export class Web3Service {
         console.log("Proceeding to proposeSpec anyway - spec might already exist");
       }
       
-      // Then propose with a bond
+      // Then propose with a bond - we know contract is not null here
       const proposeTx = await this.contract.proposeSpec(ipfsHash, { 
         value: bondAmount,
       });
@@ -209,6 +246,96 @@ export class Web3Service {
       } else {
         throw error;
       }
+    }
+  }
+
+  /**
+   * Get the questionId from the contract for a given IPFS hash
+   */
+  async getQuestionId(ipfsHash: string): Promise<string> {
+    try {
+      if (!this.contract || !this.signer) {
+        throw new Error("Not connected to MetaMask. Please connect first.");
+      }
+      
+      // We know contract is not null here
+      const questionId = await this.contract.getQuestionId(ipfsHash);
+      console.log("Question ID for IPFS hash:", ipfsHash, "is", questionId);
+      return questionId;
+    } catch (error) {
+      console.error("Error getting questionId:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the current status of a specification from the contract
+   * Returns: 0 = Submitted, 1 = Accepted, 2 = Rejected
+   */
+  async getSpecStatus(ipfsHash: string): Promise<number> {
+    try {
+      if (!this.contract || !this.signer) {
+        throw new Error("Not connected to MetaMask. Please connect first.");
+      }
+      
+      // We know contract is not null here
+      const status = await this.contract.getStatus(ipfsHash);
+      console.log("Status for IPFS hash:", ipfsHash, "is", status);
+      return Number(status);
+    } catch (error) {
+      console.error("Error getting spec status:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if a specification is accepted
+   */
+  async isSpecAccepted(ipfsHash: string): Promise<boolean> {
+    try {
+      if (!this.contract || !this.signer) {
+        throw new Error("Not connected to MetaMask. Please connect first.");
+      }
+      
+      // We know contract is not null here
+      const isAccepted = await this.contract.isAccepted(ipfsHash);
+      console.log("Acceptance status for IPFS hash:", ipfsHash, "is", isAccepted);
+      return isAccepted;
+    } catch (error) {
+      console.error("Error checking if spec is accepted:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle the result of a Reality.eth question by calling the contract's handleResult function
+   */
+  async handleResult(ipfsHash: string): Promise<string> {
+    try {
+      if (!this.contract || !this.signer) {
+        throw new Error("Not connected to MetaMask. Please connect first.");
+      }
+      
+      // Make sure we're on the Sepolia network
+      const isCorrectNetwork = await this.checkNetwork();
+      if (!isCorrectNetwork) {
+        throw new Error("Please switch to the Sepolia network to continue.");
+      }
+      
+      console.log("Handling result for IPFS hash:", ipfsHash);
+      
+      // We know contract is not null here
+      const tx = await this.contract.handleResult(ipfsHash);
+      console.log("Handle result transaction sent:", tx.hash);
+      
+      // Wait for transaction to be confirmed
+      const receipt = await tx.wait();
+      console.log("Handle result transaction confirmed:", receipt);
+      
+      return tx.hash;
+    } catch (error) {
+      console.error("Error handling result:", error);
+      throw error;
     }
   }
 }

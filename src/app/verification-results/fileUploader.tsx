@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
-import { FileJson, Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { FileJson, Upload, CheckCircle, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { useErc7730Store } from "~/store/erc7730Provider";
 import { useToast } from "~/hooks/use-toast";
 import { uploadToIPFS } from "~/lib/ipfsService";
 import { web3Service } from "~/lib/web3Service";
+import { useRouter } from "next/navigation";
+import { getQuestionData, hasFinalizationTimePassed, getTimeRemainingUntilFinalization } from "~/lib/realityEthService";
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
@@ -24,6 +26,14 @@ export default function FileUploader() {
   const [minBond, setMinBond] = useState<string | null>(null);
   const { setErc7730 } = useErc7730Store((state) => state);
   const { toast } = useToast();
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [questionId, setQuestionId] = useState<string | null>(null);
+  const [finalizationTimestamp, setFinalizationTimestamp] = useState<string | null>(null);
+  const [timeout, setTimeout] = useState<string | null>(null);
+  const [createdTimestamp, setCreatedTimestamp] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  const [isCheckingResult, setIsCheckingResult] = useState(false);
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -179,6 +189,180 @@ export default function FileUploader() {
     }
   };
 
+  const checkVerificationStatus = async () => {
+    if (!ipfsHash || !walletConnected) {
+      toast({
+        title: "Action Required",
+        description: "Please upload a file and connect your wallet first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsCheckingStatus(true);
+    
+    try {
+      // Connect to wallet if not already connected
+      if (!walletConnected) {
+        await connectWallet();
+      }
+      
+      // Get the questionId from the contract
+      console.log("Getting questionId from contract for IPFS hash:", ipfsHash);
+      const questionId = await web3Service.getQuestionId(ipfsHash);
+      console.log("Received questionId from contract:", questionId);
+      setQuestionId(questionId);
+      
+      if (questionId === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+        toast({
+          title: "No Question Found",
+          description: "This specification hasn't been proposed with a bond yet.",
+          variant: "destructive",
+        });
+        setIsCheckingStatus(false);
+        return;
+      }
+      
+      try {
+        // Log subgraph URL for debugging
+        console.log("Using Reality.eth subgraph URL:", process.env.NEXT_PUBLIC_REALITY_ETH_GRAPH_URL || 
+          "https://gateway.thegraph.com/api/73380b22a17017c081123ec9c0e34677/subgraphs/id/F3XjWNiNFUTbZhNQjXuhP7oDug2NaPwMPZ5XCRx46h5U");
+        
+        // Add a simple direct request to test connectivity
+        try {
+          const testResponse = await fetch(process.env.NEXT_PUBLIC_REALITY_ETH_GRAPH_URL || 
+            "https://gateway.thegraph.com/api/73380b22a17017c081123ec9c0e34677/subgraphs/id/F3XjWNiNFUTbZhNQjXuhP7oDug2NaPwMPZ5XCRx46h5U", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              query: `{ _meta { block { number } } }` 
+            }),
+          });
+          
+          const testData = await testResponse.json();
+          console.log("Basic connectivity test response:", testData);
+        } catch (testError) {
+          console.error("Basic connectivity test failed:", testError);
+        }
+        
+        // Get question data from Reality.eth
+        console.log("Trying to get question data for ID:", questionId);
+        const questionData = await getQuestionData(questionId);
+        
+        if (!questionData) {
+          console.warn("Question data is null");
+          
+          // Show a more informative error message
+          toast({
+            title: "Question Data Unavailable",
+            description: "The question exists in the contract but could not be retrieved from Reality.eth API. Check the console for more details.",
+            variant: "default",
+          });
+          
+          // Continue anyway but with minimal data
+          const defaultData = {
+            id: questionId,
+            createdTimestamp: Math.floor(Date.now() / 1000 - 900).toString(), // 15 minutes ago
+          };
+          
+          setFinalizationTimestamp(null);
+          setTimeout(null);
+          setCreatedTimestamp(defaultData.createdTimestamp);
+          
+          const timeRemaining = getTimeRemainingUntilFinalization(
+            undefined,
+            "900", // 15 minute timeout
+            defaultData.createdTimestamp
+          );
+          setTimeRemaining(timeRemaining);
+          
+          // Navigate to the verification status page
+          router.push(`/verification-status?ipfsHash=${ipfsHash}&questionId=${questionId}`);
+          return;
+        }
+        
+        console.log("Received question data:", questionData);
+        
+        // Set state with available data, handling optional fields
+        setFinalizationTimestamp(questionData.currentScheduledFinalizationTimestamp || null);
+        setTimeout(questionData.timeout || null);
+        setCreatedTimestamp(questionData.createdTimestamp || null);
+        
+        // Calculate time remaining based on available data
+        const timeRemaining = getTimeRemainingUntilFinalization(
+          questionData.currentScheduledFinalizationTimestamp,
+          questionData.timeout,
+          questionData.createdTimestamp
+        );
+        setTimeRemaining(timeRemaining);
+        
+        // Check if finalization time has passed
+        const canFinalize = await hasFinalizationTimePassed(questionId);
+        
+        if (canFinalize) {
+          toast({
+            title: "Finalization Available",
+            description: "The waiting period has ended. You can now fetch the verification result.",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Waiting Period",
+            description: `Verification is still in the waiting period. ${timeRemaining}`,
+            variant: "default",
+          });
+        }
+        
+        // Navigate to the verification status page
+        router.push(`/verification-status?ipfsHash=${ipfsHash}&questionId=${questionId}`);
+      } catch (error: any) {
+        console.error("Error fetching question data:", error);
+        
+        // Handle question not found errors specifically
+        if (error.message?.includes("Question not found") || error.message?.includes("No question data found")) {
+          toast({
+            title: "Question Not Registered Yet",
+            description: "This question hasn't been registered in Reality.eth yet. Please wait a few minutes for the transaction to be processed and try again.",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Error Checking Status",
+            description: `${error.message || "Failed to check verification status. Please try again."}`,
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error checking verification status:", error);
+      toast({
+        title: "Error Checking Status",
+        description: `${error.message || "Failed to check verification status. Please try again."}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+  
+  useEffect(() => {
+    // Update time remaining every minute if we have a finalization timestamp
+    if (finalizationTimestamp) {
+      const interval = setInterval(() => {
+        const remaining = getTimeRemainingUntilFinalization(
+          finalizationTimestamp || '', 
+          timeout || undefined, 
+          createdTimestamp || undefined
+        );
+        setTimeRemaining(remaining);
+      }, 60000); // Update every minute
+      
+      return () => clearInterval(interval);
+    }
+  }, [finalizationTimestamp]);
+
   return (
     <Card className="p-6 mb-8 bg-gray-950 border-gray-800">
       <div className="flex flex-col gap-4">
@@ -298,11 +482,28 @@ export default function FileUploader() {
         
         {ipfsHash && (
           <div className="flex flex-col gap-2 text-green-500 mt-4">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              <span>
-                IPFS Hash: <span className="font-mono text-xs bg-gray-800 px-2 py-1 rounded">{ipfsHash}</span>
-              </span>
+            <div className="flex items-center gap-2 justify-between">
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5" />
+                <span className="ml-2">
+                  IPFS Hash: <span className="font-mono text-xs bg-gray-800 px-2 py-1 rounded">{ipfsHash}</span>
+                </span>
+              </div>
+              <Button
+                onClick={checkVerificationStatus}
+                size="lg"
+                className="ml-auto bg-blue-600 hover:bg-blue-700 px-8 py-6"
+                disabled={isCheckingStatus}
+              >
+                {isCheckingStatus ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  "Check Verification Status"
+                )}
+              </Button>
             </div>
             <div className="text-sm text-gray-400">
               View on: 
@@ -333,6 +534,12 @@ export default function FileUploader() {
                 web3.storage
               </a>
             </div>
+            {timeRemaining && (
+              <div className="mt-1 p-2 bg-gray-800 rounded-md text-sm">
+                <p className="text-amber-500">Verification Status: <span className="font-medium">In Progress</span></p>
+                <p className="text-gray-300 mt-1">{timeRemaining}</p>
+              </div>
+            )}
             <p className="text-xs text-gray-500 mt-1">
               Note: IPFS content may take a few minutes to propagate across the network. If one gateway doesn't work, try another.
             </p>
