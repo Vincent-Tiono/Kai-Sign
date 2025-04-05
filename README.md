@@ -16,7 +16,7 @@ Team of talented engineers, web developers and the founder of reality.eth, a cro
 
 - [Vincent-Tiono](https://github.com/Vincent-Tiono)
 - [Nathanael349](https://github.com/Nathanael349)
-- [Keith]
+- [keithlim123](https://github.com/keithlim123)
 - [edmundedgar](https://github.com/edmundedgar)
 - [muhammadaus](https://github.com/muhammadaus)
 
