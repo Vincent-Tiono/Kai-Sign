@@ -55,33 +55,35 @@ export default function ContractEventsPage() {
         setStatusMessage(null);
       }
       
+      let eventData: any[] = [];
+      
       // Check various possible structures and set events accordingly
       if (Array.isArray(data)) {
-        setEvents(data);
+        eventData = data;
       } else if (data.result && Array.isArray(data.result)) {
-        setEvents(data.result);
+        eventData = data.result;
       } else if (data.result && data.result.rows && Array.isArray(data.result.rows) && data.result.rows.length > 0 && Object.keys(data.result.rows[0]).length > 0) {
         // Handle the specific response pattern from the queries endpoint
-        setEvents(data.result.rows);
+        eventData = data.result.rows;
       } else if (data.results && Array.isArray(data.results)) {
-        setEvents(data.results);
+        eventData = data.results;
       } else if (data.data && Array.isArray(data.data)) {
-        setEvents(data.data);
+        eventData = data.data;
       } else if (data.events && Array.isArray(data.events)) {
-        setEvents(data.events);
+        eventData = data.events;
       } else if (data.items && Array.isArray(data.items)) {
-        setEvents(data.items);
+        eventData = data.items;
       } else {
         // Deep check for nested arrays
         let foundEvents = false;
         Object.keys(data).forEach(key => {
           if (!foundEvents && data[key] && Array.isArray(data[key])) {
-            setEvents(data[key]);
+            eventData = data[key];
             foundEvents = true;
           } else if (!foundEvents && typeof data[key] === 'object' && data[key] !== null) {
             Object.keys(data[key]).forEach(nestedKey => {
               if (!foundEvents && data[key][nestedKey] && Array.isArray(data[key][nestedKey])) {
-                setEvents(data[key][nestedKey]);
+                eventData = data[key][nestedKey];
                 foundEvents = true;
               }
             });
@@ -90,9 +92,18 @@ export default function ContractEventsPage() {
         
         if (!foundEvents) {
           console.error("Unexpected data structure:", data);
-          setEvents([]);
+          eventData = [];
         }
       }
+      
+      // Sort events by timestamp in descending order (newest first)
+      eventData.sort((a, b) => {
+        const timestampA = a.timestamp || 0;
+        const timestampB = b.timestamp || 0;
+        return timestampB - timestampA;
+      });
+      
+      setEvents(eventData);
     }
   }, [data, isLoading]);
 
@@ -116,10 +127,10 @@ export default function ContractEventsPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Validated erc7730 metadata</h1>
+      <h1 className="text-3xl font-bold mb-6">Validated ERC7730 metadata</h1>
       <Card>
         <CardHeader>
-          <CardTitle>LogHandleResult Events</CardTitle>
+          <CardTitle>Past results (Query powered by Curvegrid)</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -159,30 +170,37 @@ export default function ContractEventsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>SpecID</TableHead>
+                        <TableHead>Transaction Hash</TableHead>
                         <TableHead>Is Accepted</TableHead>
                         <TableHead>Timestamp</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {events.map((event, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-mono text-xs">
-                            {event.args && event.args.specID ? 
-                              `${event.args.specID.slice(0, 10)}...${event.args.specID.slice(-8)}` : 
-                              'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            {event.args && event.args.isAccepted !== undefined ? 
-                              (event.args.isAccepted ? "Yes" : "No") : 
-                              'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            {event.timestamp ? 
-                              new Date(event.timestamp * 1000).toLocaleString() : 
-                              'N/A'}
-                          </TableCell>
-                        </TableRow>
+                        event.args && event.args.isAccepted ? (
+                          <TableRow key={index}>
+                            <TableCell className="font-mono text-xs">
+                              {event.transactionHash ? (
+                                <a 
+                                  href={`https://sepolia.etherscan.io/tx/${event.transactionHash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  {`${event.transactionHash.slice(0, 10)}...${event.transactionHash.slice(-8)}`}
+                                </a>
+                              ) : 'N/A'}
+                            </TableCell>
+                            <TableCell>
+                              {event.args && event.args.isAccepted ? "Yes" : ""}
+                            </TableCell>
+                            <TableCell>
+                              {event.timestamp ? 
+                                new Date(event.timestamp * 1000).toLocaleString() : 
+                                'N/A'}
+                            </TableCell>
+                          </TableRow>
+                        ) : null
                       ))}
                     </TableBody>
                   </Table>
@@ -192,7 +210,7 @@ export default function ContractEventsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>SpecID</TableHead>
+                        <TableHead>Transaction Hash</TableHead>
                         <TableHead>Is Accepted</TableHead>
                         <TableHead>Timestamp</TableHead>
                       </TableRow>
