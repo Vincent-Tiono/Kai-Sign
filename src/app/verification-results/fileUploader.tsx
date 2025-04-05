@@ -71,13 +71,13 @@ export default function FileUploader() {
   };
 
   return (
-    <Card className="p-6 mb-8">
+    <Card className="p-6 mb-8 bg-gray-950 border-gray-800">
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-medium">Upload ERC7730 JSON File</h2>
         
-        <div className="flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg p-6">
-          <FileJson size={48} className="text-gray-400" />
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center justify-center gap-6 border-2 border-dashed border-gray-700 rounded-lg p-8">
+          <FileJson size={52} className="text-gray-400" />
+          <p className="text-sm text-gray-400 text-center">
             {file ? `Selected: ${file.name}` : "Drag and drop your JSON file here or click to browse"}
           </p>
           
@@ -89,44 +89,53 @@ export default function FileUploader() {
             className="hidden"
           />
           
-          <Button
-            asChild={!file}
-            variant="outline"
-            disabled={isVerifying}
-          >
-            {!file ? (
-              <label htmlFor="jsonFileUpload" className="cursor-pointer">
-                <Upload className="mr-2 h-4 w-4" />
+          {!file ? (
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="px-8 py-6 min-w-[220px] text-white bg-transparent border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-colors"
+            >
+              <label htmlFor="jsonFileUpload" className="cursor-pointer flex items-center justify-center text-base">
+                <Upload className="mr-2 h-5 w-5" />
                 Browse Files
               </label>
-            ) : (
-              <label htmlFor="jsonFileUpload" className="cursor-pointer">
-                <Upload className="mr-2 h-4 w-4" />
-                Change File
-              </label>
-            )}
-          </Button>
-          
-          {file && (
-            <Button
-              onClick={handleUpload}
-              disabled={isVerifying}
-              className="mt-2"
-            >
-              {isVerifying ? "Verifying..." : "Verify JSON"}
             </Button>
+          ) : (
+            <div className="flex flex-col items-center gap-4 w-full max-w-md">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full px-8 py-6 text-white bg-transparent border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-colors"
+              >
+                <label htmlFor="jsonFileUpload" className="cursor-pointer flex items-center justify-center text-base">
+                  <Upload className="mr-2 h-5 w-5" />
+                  Change File
+                </label>
+              </Button>
+              
+              <Button
+                onClick={handleUpload}
+                disabled={isVerifying}
+                size="lg"
+                className="w-full px-8 py-6 mt-2 text-base bg-white text-black hover:bg-gray-100"
+              >
+                {isVerifying ? "Verifying..." : "Verify JSON"}
+              </Button>
+            </div>
           )}
         </div>
         
         {verificationStatus === "success" && (
-          <div className="flex items-center gap-2 text-green-600 mt-2">
+          <div className="flex items-center gap-2 text-green-500 mt-4">
             <CheckCircle className="h-5 w-5" />
             <span>File verified successfully!</span>
           </div>
         )}
         
         {verificationStatus === "error" && (
-          <div className="flex items-center gap-2 text-red-600 mt-2">
+          <div className="flex items-center gap-2 text-red-500 mt-4">
             <AlertCircle className="h-5 w-5" />
             <span>Invalid JSON format. Please upload a valid ERC7730 specification.</span>
           </div>
