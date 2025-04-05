@@ -9,6 +9,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import SampleAddressAbiCard from "./sampleAddressAbiCard";
 import { Button } from "~/components/ui/button";
+import { FileJson } from "lucide-react";
 
 import { ZodError } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -52,6 +53,10 @@ const CardErc7730 = () => {
     setInputType(value as "address" | "abi");
     setInput("");
   };
+  
+  const handleSkipToVerification = () => {
+    router.push("/verification-results");
+  };
 
   return (
     <div className="w-full lg:w-[580px]">
@@ -88,9 +93,19 @@ const CardErc7730 = () => {
             </div>
           </TabsContent>
         </Tabs>
-        <Button type="submit" disabled={loading}>
-          Submit
-        </Button>
+        <div className="flex justify-between gap-4">
+          <Button type="submit" disabled={loading}>
+            Submit
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleSkipToVerification}
+          >
+            <FileJson className="mr-2 h-4 w-4" />
+            I already have a JSON file
+          </Button>
+        </div>
       </form>
 
       <SampleAddressAbiCard setInput={setInput} inputType={inputType} />
