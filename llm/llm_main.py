@@ -42,15 +42,15 @@ def load_contract_abi():
 
 def load_processed_hashes():
     """Load the list of already processed IPFS hashes."""
-    # if os.path.exists(DB_FILE):
-    #     try:
-    #         with open(DB_FILE, 'r') as f:
-    #             hashes = json.load(f)
-    #             if len(hashes) > MAX_HASHES:
-    #                 hashes = hashes[-MAX_HASHES:]
-    #             return hashes
-    #     except json.JSONDecodeError:
-    #         return []
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, 'r') as f:
+                hashes = json.load(f)
+                if len(hashes) > MAX_HASHES:
+                    hashes = hashes[-MAX_HASHES:]
+                return hashes
+        except json.JSONDecodeError:
+            return []
     return []
 
 def save_processed_hashes(processed_hashes):
@@ -153,7 +153,7 @@ def check_for_new_data(interval_seconds, api_key, processed_hashes):
         if not new_found:
             print(f"No new challenges found this round. Checking again in {interval_seconds} seconds.")
         
-        # save_processed_hashes(processed_hashes)
+        save_processed_hashes(processed_hashes)
         
         return processed_hashes, new_found
         
@@ -183,8 +183,7 @@ def main():
             time.sleep(interval_seconds)
             
     except KeyboardInterrupt:
-        # save_processed_hashes(processed_hashes)
-        pass
+        save_processed_hashes(processed_hashes)
 
 if __name__ == "__main__":
     main() 
