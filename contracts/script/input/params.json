@@ -1,0 +1,6 @@
+{
+    "arbitrator": "0x05B942fAEcfB3924970E3A28e0F230910CEDFF45",
+    "minBond": 100000000000000,
+    "realityETH": "0xaf33DcB6E8c5c4D9dDF579f53031b514d19449CA",
+    "timeout": 900
+}

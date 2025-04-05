@@ -16,9 +16,13 @@ contract KaiSign {
         Rejected
     }
 
-    event LogCreateSpec(address indexed creator, bytes32 specID, string ipfs);
+    event LogCreateSpec(address indexed user, bytes32 specID, string ipfs);
 
-    event LogProposeSpec(address indexed proposer, bytes32 specID, bytes32 questionId);
+    event LogProposeSpec(address indexed user, bytes32 specID, bytes32 questionId, uint256 bond);
+
+    event LogAssertSpecInvalid(address indexed user, bytes32 specID, bytes32 questionId, uint256 bond);
+
+    event LogAssertSpecValid(address indexed user, bytes32 specID, bytes32 questionId, uint256 bond);
 
     event LogHandleResult(bytes32 specID, bool isAccepted);
 
@@ -49,18 +53,37 @@ contract KaiSign {
 
     function proposeSpecByHash(bytes32 specID) public payable {
         require(specs[specID].createdTimestamp > 0, "Not proposed yet");
-        bytes32 questionId = RealityETH_v3_0(realityETH).askQuestionWithMinBond(
+        specs[specID].questionId = RealityETH_v3_0(realityETH).askQuestionWithMinBond(
             templateId, specs[specID].ipfs, arbitrator, timeout, 0, 0, minBond
         );
-        specs[specID].questionId = questionId;
-        // Put in the first answer with a bond
-        // Any subsequent challenges can happen in the oracle app
-        RealityETH_v3_0(realityETH).submitAnswerFor{value: msg.value}(questionId, bytes32(uint256(1)), 0, msg.sender);
-        emit LogProposeSpec(msg.sender, specID, questionId);
+        emit LogProposeSpec(msg.sender, specID, specs[specID].questionId, msg.value);
+        assertSpecValidByHash(specID);
     }
 
     function proposeSpec(string calldata ipfs) external payable {
         proposeSpecByHash(keccak256(bytes(ipfs)));
+    }
+
+    function assertSpecValidByHash(bytes32 specID) public payable {
+        require(specs[specID].createdTimestamp > 0, "Not proposed yet");
+        bytes32 questionId = specs[specID].questionId;
+        RealityETH_v3_0(realityETH).submitAnswerFor{value: msg.value}(questionId, bytes32(uint256(1)), 0, msg.sender);
+        emit LogAssertSpecValid(msg.sender, specID, questionId, msg.value);
+    }
+
+    function assertSpecValid(string calldata ipfs) public payable {
+        assertSpecValidByHash(keccak256(bytes(ipfs)));
+    }
+
+    function assertSpecInvalidByHash(bytes32 specID) public payable {
+        require(specs[specID].createdTimestamp > 0, "Not proposed yet");
+        bytes32 questionId = specs[specID].questionId;
+        RealityETH_v3_0(realityETH).submitAnswerFor{value: msg.value}(questionId, bytes32(uint256(0)), 0, msg.sender);
+        emit LogAssertSpecInvalid(msg.sender, specID, questionId, msg.value);
+    }
+
+    function assertSpecInvalid(string calldata ipfs) public payable {
+        assertSpecInvalidByHash(keccak256(bytes(ipfs)));
     }
 
     function handleResultByHash(bytes32 specID) public {
@@ -74,19 +97,39 @@ contract KaiSign {
         handleResultByHash(keccak256(bytes(ipfs)));
     }
 
-    function getCreatedTimestamp(bytes32 id) external view returns (uint64) {
+    function getCreatedTimestampByHash(bytes32 id) external view returns (uint64) {
         return specs[id].createdTimestamp;
     }
 
-    function getStatus(bytes32 id) external view returns (Status) {
+    function getCreatedTimestamp(string calldata ipfs) external view returns (uint64) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].createdTimestamp;
+    }
+
+    function getStatusByHash(bytes32 id) external view returns (Status) {
         return specs[id].status;
     }
 
-    function getIPFS(bytes32 id) external view returns (string memory) {
+    function getStatus(string calldata ipfs) external view returns (Status) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].status;
+    }
+
+    function getIPFSByHash(bytes32 id) external view returns (string memory) {
         return specs[id].ipfs;
     }
 
-    function getQuestionId(bytes32 id) external view returns (bytes32) {
+    function getIPFS(string calldata ipfs) external view returns (string memory) {
+        bytes32 id = keccak256(bytes(ipfs));
+        return specs[id].ipfs;
+    }
+
+    function getQuestionIdByHash(bytes32 id) external view returns (bytes32) {
+        return specs[id].questionId;
+    }
+
+    function getQuestionId(string calldata ipfs) external view returns (bytes32) {
+        bytes32 id = keccak256(bytes(ipfs));
         return specs[id].questionId;
     }
 
