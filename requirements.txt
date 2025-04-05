@@ -3,4 +3,4 @@ uvicorn[standard]==0.30.6
 erc7730
 python-dotenv
 google-genai
-python==3.12.0
+# python==3.12.0
