@@ -25,6 +25,7 @@ export default function VerificationStatusPage() {
   const [isProcessingResult, setIsProcessingResult] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [specStatus, setSpecStatus] = useState<number>(-1);
+  const [lastPolledTimestamp, setLastPolledTimestamp] = useState<string | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -78,6 +79,66 @@ export default function VerificationStatusPage() {
       return () => clearInterval(interval);
     }
   }, [finalizationTimestamp, timeoutValue, createdTimestampValue]);
+  
+  // Add periodic polling to check for challenges
+  useEffect(() => {
+    if (!ipfsHash || !questionId) return;
+    
+    // Store the initial finalization timestamp for comparison
+    setLastPolledTimestamp(finalizationTimestamp);
+    
+    // Check for challenges every 30 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        console.log("Polling for challenges...");
+        const questionData = await getQuestionData(questionId);
+        
+        if (questionData && questionData.currentScheduledFinalizationTimestamp) {
+          // If the timestamp has changed and is later than before, a challenge might have occurred
+          if (lastPolledTimestamp && 
+              questionData.currentScheduledFinalizationTimestamp !== lastPolledTimestamp &&
+              parseInt(questionData.currentScheduledFinalizationTimestamp) > parseInt(lastPolledTimestamp)) {
+            
+            console.log("Challenge detected! Finalization time has changed:");
+            console.log("- Previous time:", new Date(parseInt(lastPolledTimestamp) * 1000).toLocaleString());
+            console.log("- New time:", new Date(parseInt(questionData.currentScheduledFinalizationTimestamp) * 1000).toLocaleString());
+            
+            // Update the UI with new data
+            setFinalizationTimestamp(questionData.currentScheduledFinalizationTimestamp);
+            setTimeoutValue(questionData.timeout || null);
+            setCreatedTimestampValue(questionData.createdTimestamp || null);
+            
+            // Recalculate time remaining based on new data
+            const remaining = getTimeRemainingUntilFinalization(
+              questionData.currentScheduledFinalizationTimestamp,
+              questionData.timeout,
+              questionData.createdTimestamp
+            );
+            setTimeRemaining(remaining);
+            
+            // Update finalization status
+            const now = Date.now();
+            const newFinalizationTime = parseInt(questionData.currentScheduledFinalizationTimestamp) * 1000;
+            setCanFinalize(now > newFinalizationTime);
+            
+            // Notify the user
+            toast({
+              title: "Verification Challenge Detected",
+              description: "The verification time has been extended due to a challenge.",
+              variant: "default",
+            });
+          }
+          
+          // Update the last polled timestamp
+          setLastPolledTimestamp(questionData.currentScheduledFinalizationTimestamp);
+        }
+      } catch (error) {
+        console.error("Error polling for challenges:", error);
+      }
+    }, 30000); // Poll every 30 seconds
+    
+    return () => clearInterval(pollInterval);
+  }, [ipfsHash, questionId, lastPolledTimestamp, toast]);
   
   useEffect(() => {
     if (ipfsHash && questionId) {
@@ -275,8 +336,16 @@ export default function VerificationStatusPage() {
     setIsLoading(true);
     
     try {
-      // Check if finalization time has passed
+      // Get the latest question data
       if (questionId) {
+        const questionData = await getQuestionData(questionId);
+        
+        if (questionData && questionData.currentScheduledFinalizationTimestamp) {
+          setFinalizationTimestamp(questionData.currentScheduledFinalizationTimestamp);
+          setLastPolledTimestamp(questionData.currentScheduledFinalizationTimestamp);
+        }
+        
+        // Check if finalization time has passed
         const canFinalizeCheck = await hasFinalizationTimePassed(questionId);
         setCanFinalize(canFinalizeCheck);
       }
@@ -469,30 +538,6 @@ export default function VerificationStatusPage() {
                     Verification period has ended. You can now fetch the result.
                   </p>
                 </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-medium mb-2">Raw API Data</h3>
-            <div className="p-4 bg-gray-800 rounded-lg">
-              <p className="text-gray-300 font-medium mb-2">
-                Full Question ID format: 
-              </p>
-              <code className="font-mono text-sm bg-gray-900 px-3 py-2 rounded block break-all">
-                {questionId?.includes("-") ? questionId : `0xaf33dcb6e8c5c4d9ddf579f53031b514d19449ca-${questionId}`}
-              </code>
-              
-              <p className="text-gray-300 font-medium mb-2 mt-4">
-                currentScheduledFinalizationTimestamp: 
-              </p>
-              <code className="font-mono text-sm bg-gray-900 px-3 py-2 rounded block break-all">
-                {finalizationTimestamp || "Not available from API"}
-              </code>
-              {finalizationTimestamp && (
-                <p className="mt-2 text-xs text-gray-400">
-                  Unix timestamp in seconds. JavaScript Date: {new Date(parseInt(finalizationTimestamp) * 1000).toLocaleString()}
-                </p>
               )}
             </div>
           </div>
