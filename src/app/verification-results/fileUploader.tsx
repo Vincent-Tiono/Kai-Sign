@@ -2,16 +2,26 @@
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { FileJson, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { FileJson, Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { useErc7730Store } from "~/store/erc7730Provider";
 import { useToast } from "~/hooks/use-toast";
+import { uploadToIPFS } from "~/lib/ipfsService";
+import { web3Service } from "~/lib/web3Service";
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<"idle" | "success" | "error">("idle");
   const [jsonData, setJsonData] = useState<any>(null);
+  const [ipfsHash, setIpfsHash] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isConnectingWallet, setIsConnectingWallet] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [isSendingTransaction, setIsSendingTransaction] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [currentWalletAddress, setCurrentWalletAddress] = useState<string | null>(null);
+  const [minBond, setMinBond] = useState<string | null>(null);
   const { setErc7730 } = useErc7730Store((state) => state);
   const { toast } = useToast();
 
@@ -21,6 +31,8 @@ export default function FileUploader() {
       const selectedFile = e.target.files[0]!;
       setFile(selectedFile);
       setVerificationStatus("idle");
+      setIpfsHash(null);
+      setTransactionHash(null);
     }
   };
 
@@ -47,9 +59,12 @@ export default function FileUploader() {
         setErc7730(parsedData);
         toast({
           title: "File Verified Successfully",
-          description: "The ERC7730 JSON file is valid.",
+          description: "The ERC7730 JSON file is valid. Uploading to IPFS...",
           variant: "default",
         });
+        
+        // Upload to IPFS
+        await uploadToIpfs(parsedData);
       } else {
         setVerificationStatus("error");
         toast({
@@ -67,6 +82,100 @@ export default function FileUploader() {
       });
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  const uploadToIpfs = async (data: any) => {
+    setIsUploading(true);
+    
+    try {
+      // Upload to IPFS
+      toast({
+        title: "Uploading to IPFS",
+        description: "Sending your file to IPFS storage. This may take a moment...",
+        variant: "default",
+      });
+      
+      const hash = await uploadToIPFS(data);
+      setIpfsHash(hash);
+      
+      toast({
+        title: "Uploaded to IPFS Successfully",
+        description: `Your file is now stored on IPFS with hash: ${hash.substring(0, 8)}...${hash.substring(hash.length - 4)}`,
+        variant: "default",
+      });
+      
+      // Connect wallet after IPFS upload
+      await connectWallet();
+    } catch (error) {
+      console.error("Error uploading to IPFS:", error);
+      toast({
+        title: "IPFS Upload Failed",
+        description: "Failed to upload file to IPFS. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const connectWallet = async () => {
+    setIsConnectingWallet(true);
+    
+    try {
+      // Connect to MetaMask
+      const account = await web3Service.connect();
+      setCurrentWalletAddress(account);
+      setWalletConnected(true);
+      
+      // Get minimum bond amount
+      const minBondAmount = await web3Service.getMinBond();
+      setMinBond(minBondAmount.toString());
+      
+      toast({
+        title: "Wallet Connected",
+        description: `Connected to wallet: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`,
+        variant: "default",
+      });
+    } catch (error: any) {
+      console.error("Error connecting wallet:", error);
+      toast({
+        title: "Wallet Connection Failed",
+        description: error.message || "Failed to connect to wallet. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnectingWallet(false);
+    }
+  };
+  
+  const submitToBlockchain = async () => {
+    if (!ipfsHash || !walletConnected) return;
+    
+    setIsSendingTransaction(true);
+    
+    try {
+      // Get minimum bond amount again to make sure it's current
+      const bondAmount = await web3Service.getMinBond();
+      
+      // Submit to blockchain
+      const txHash = await web3Service.proposeSpec(ipfsHash, bondAmount);
+      setTransactionHash(txHash);
+      
+      toast({
+        title: "Transaction Submitted",
+        description: `Successfully submitted transaction with hash: ${txHash.substring(0, 10)}...`,
+        variant: "default",
+      });
+    } catch (error: any) {
+      console.error("Error submitting to blockchain:", error);
+      toast({
+        title: "Transaction Failed",
+        description: error.message || "Failed to submit transaction. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTransaction(false);
     }
   };
 
@@ -115,22 +224,118 @@ export default function FileUploader() {
                 </label>
               </Button>
               
-              <Button
-                onClick={handleUpload}
-                disabled={isVerifying}
-                size="lg"
-                className="w-full px-8 py-6 mt-2 text-base bg-white text-black hover:bg-gray-100"
-              >
-                {isVerifying ? "Verifying..." : "Verify JSON"}
-              </Button>
+              {!ipfsHash ? (
+                <Button
+                  onClick={handleUpload}
+                  disabled={isVerifying || isUploading}
+                  size="lg"
+                  className="w-full px-8 py-6 mt-2 text-base bg-white text-black hover:bg-gray-100"
+                >
+                  {isVerifying || isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isVerifying ? "Verifying..." : "Uploading to IPFS..."}
+                    </>
+                  ) : (
+                    "Verify JSON"
+                  )}
+                </Button>
+              ) : !walletConnected ? (
+                <Button
+                  onClick={connectWallet}
+                  disabled={isConnectingWallet}
+                  size="lg"
+                  className="w-full px-8 py-6 mt-2 text-base bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {isConnectingWallet ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connecting Wallet...
+                    </>
+                  ) : (
+                    "Connect Wallet"
+                  )}
+                </Button>
+              ) : !transactionHash ? (
+                <Button
+                  onClick={submitToBlockchain}
+                  disabled={isSendingTransaction}
+                  size="lg"
+                  className="w-full px-8 py-6 mt-2 text-base bg-green-600 text-white hover:bg-green-700"
+                >
+                  {isSendingTransaction ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting Transaction...
+                    </>
+                  ) : (
+                    `Submit with Bond (${minBond ? (Number(minBond) / 10**18).toFixed(5) : "..."} ETH)`
+                  )}
+                </Button>
+              ) : (
+                <div className="w-full p-4 bg-green-900/30 border border-green-700 rounded-lg text-center">
+                  <p className="text-green-500 font-medium mb-1">Transaction Submitted!</p>
+                  <a 
+                    href={`https://sepolia.etherscan.io/tx/${transactionHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-400 hover:underline"
+                  >
+                    View on Etherscan
+                  </a>
+                </div>
+              )}
             </div>
           )}
         </div>
         
-        {verificationStatus === "success" && (
+        {verificationStatus === "success" && !ipfsHash && (
           <div className="flex items-center gap-2 text-green-500 mt-4">
             <CheckCircle className="h-5 w-5" />
             <span>File verified successfully!</span>
+          </div>
+        )}
+        
+        {ipfsHash && (
+          <div className="flex flex-col gap-2 text-green-500 mt-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              <span>
+                IPFS Hash: <span className="font-mono text-xs bg-gray-800 px-2 py-1 rounded">{ipfsHash}</span>
+              </span>
+            </div>
+            <div className="text-sm text-gray-400">
+              View on: 
+              <a 
+                href={`https://gateway.ipfs.io/ipfs/${ipfsHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-blue-400 hover:underline"
+              >
+                IPFS Gateway
+              </a>
+              <span className="mx-1">|</span>
+              <a 
+                href={`https://ipfs.io/ipfs/${ipfsHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:underline"
+              >
+                IPFS.io
+              </a>
+              <span className="mx-1">|</span>
+              <a 
+                href={`https://w3s.link/ipfs/${ipfsHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:underline"
+              >
+                web3.storage
+              </a>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Note: IPFS content may take a few minutes to propagate across the network. If one gateway doesn't work, try another.
+            </p>
           </div>
         )}
         
