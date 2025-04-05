@@ -3,7 +3,8 @@ from fastapi import FastAPI, HTTPException, Path
 from subprocess import Popen, PIPE
 from dotenv import load_dotenv
 import os
-from erc7730.generate.generate import generate_descriptor
+# Import the patched version of generate_descriptor
+from erc7730_patched import generate_descriptor
 from erc7730.model.input.descriptor import InputERC7730Descriptor
 import os
 import traceback
@@ -19,6 +20,8 @@ def load_env():
     etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
     env = os.environ.copy()
     env["ETHERSCAN_API_KEY"] = etherscan_api_key
+    # We're using in-memory cache instead of file-based cache
+    # but keep this env var for compatibility with other parts of the code
     env["XDG_CACHE_HOME"] = '/tmp'
     load_dotenv()
 
