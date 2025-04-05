@@ -15,16 +15,16 @@ import json
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-load_dotenv()
+# load_dotenv()
 
-# def load_env():
-#     etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
-#     env = os.environ.copy()
-#     env["ETHERSCAN_API_KEY"] = etherscan_api_key
-#     # We're using in-memory cache instead of file-based cache
-#     # but keep this env var for compatibility with other parts of the code
-#     env["XDG_CACHE_HOME"] = '/tmp'
-#     load_dotenv()
+def load_env():
+    etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
+    env = os.environ.copy()
+    env["ETHERSCAN_API_KEY"] = etherscan_api_key
+    # We're using in-memory cache instead of file-based cache
+    # but keep this env var for compatibility with other parts of the code
+    env["XDG_CACHE_HOME"] = '/tmp'
+    load_dotenv()
 
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
@@ -40,7 +40,7 @@ class Props(BaseModel):
 def run_erc7730(params: Props):
     """Generate the 'erc7730' based on an ABI."""
     try:
-        # load_env()
+        load_env()
         result = None
 
         # we only manage ethereum mainnet
