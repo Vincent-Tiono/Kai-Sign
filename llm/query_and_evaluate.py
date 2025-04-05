@@ -96,8 +96,7 @@ def evaluate_ipfs_hash(ipfs_hash):
         # First fetch the content from IPFS
         content = fetch_ipfs_content(ipfs_hash)
         
-        # Save the content to a file in the specs directory
-        
+        # No file operations - process everything in memory
         # Directly use the imported evaluation function
         result_dict = evaluate_specification(content)
         
@@ -162,9 +161,6 @@ def main():
     # Process first question
     question = questions[5]
     ipfs_hash = question['data']
-    
-    # Fetch content from IPFS (needed for evaluation)
-    content = fetch_ipfs_content(ipfs_hash)
     
     # Evaluate the IPFS hash
     result = evaluate_ipfs_hash(ipfs_hash)
