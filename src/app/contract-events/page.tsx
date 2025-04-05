@@ -44,7 +44,6 @@ export default function ContractEventsPage() {
     if (data && !isLoading) {
       // Store the raw response for debugging
       setRawResponse(data);
-      console.log("API Response:", JSON.stringify(data, null, 2));
       
       // Clear any previous error
       setErrorDetails(null);
@@ -58,39 +57,30 @@ export default function ContractEventsPage() {
       
       // Check various possible structures and set events accordingly
       if (Array.isArray(data)) {
-        console.log("Data is an array");
         setEvents(data);
       } else if (data.result && Array.isArray(data.result)) {
-        console.log("Data has result array");
         setEvents(data.result);
       } else if (data.result && data.result.rows && Array.isArray(data.result.rows) && data.result.rows.length > 0 && Object.keys(data.result.rows[0]).length > 0) {
         // Handle the specific response pattern from the queries endpoint
-        console.log("Data has result.rows array with content");
         setEvents(data.result.rows);
       } else if (data.results && Array.isArray(data.results)) {
-        console.log("Data has results array");
         setEvents(data.results);
       } else if (data.data && Array.isArray(data.data)) {
-        console.log("Data has data array");
         setEvents(data.data);
       } else if (data.events && Array.isArray(data.events)) {
-        console.log("Data has events array");
         setEvents(data.events);
       } else if (data.items && Array.isArray(data.items)) {
-        console.log("Data has items array");
         setEvents(data.items);
       } else {
         // Deep check for nested arrays
         let foundEvents = false;
         Object.keys(data).forEach(key => {
           if (!foundEvents && data[key] && Array.isArray(data[key])) {
-            console.log(`Found array in data.${key}`);
             setEvents(data[key]);
             foundEvents = true;
           } else if (!foundEvents && typeof data[key] === 'object' && data[key] !== null) {
             Object.keys(data[key]).forEach(nestedKey => {
               if (!foundEvents && data[key][nestedKey] && Array.isArray(data[key][nestedKey])) {
-                console.log(`Found array in data.${key}.${nestedKey}`);
                 setEvents(data[key][nestedKey]);
                 foundEvents = true;
               }

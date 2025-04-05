@@ -14,7 +14,6 @@ export const contractEventsRouter = createTRPCRouter({
       const { offset, limit } = input;
       
       try {
-        console.log(`Querying for LogHandleResult events with offset=${offset} and limit=${limit}`);
         
         const hostname = "bjng3k6eyfdftbqd64ldtrm7we.multibaas.com";
         
@@ -22,16 +21,12 @@ export const contractEventsRouter = createTRPCRouter({
         const rawJwt = env.CURVEGRID_JWT || "";
         const jwt = rawJwt.trim().replace(/\s*=\s*/, '=').replace(/^"(.*)"$/, '$1');
         
-        console.log(`JWT token length: ${jwt.length}`);
-        console.log(`JWT starts with: ${jwt.substring(0, 5)}...`);
-        
         if (!jwt) {
           console.error("CURVEGRID_JWT is not set or empty");
           throw new Error("API credentials are not configured");
         }
 
         // Use the exact query format provided
-        console.log("Making API request with exact query format...");
         const resp = await fetch(
           `https://${hostname}/api/v0/queries`,
           {
@@ -96,18 +91,12 @@ export const contractEventsRouter = createTRPCRouter({
         }
         
         const data = await resp.json();
-        console.log("API Response status:", data.status);
-        console.log("API has result:", !!data.result);
-        
-        // Log the entire response for debugging
-        console.log("Full API Response:", JSON.stringify(data, null, 2));
         
         // Check if we have rows in the result (based on test results)
         if (data.result && data.result.rows && Array.isArray(data.result.rows)) {
           const rows = data.result.rows.filter((row: Record<string, any>) => Object.keys(row).length > 0);
           
           if (rows.length > 0) {
-            console.log("Found data, row count:", rows.length);
             // We found actual data, map and return it
             const events = rows.map((row: Record<string, any>) => {
               // Access fields with lowercase names based on the test results
@@ -154,17 +143,14 @@ export const contractEventsRouter = createTRPCRouter({
                   isAccepted: isAccepted
                 }
               };
-              console.log("Mapped event:", JSON.stringify(event));
               return event;
             });
             
-            console.log("Returning", events.length, "events");
             return events;
           }
         }
         
         // If we reach here, the API call was successful but no events were found
-        console.log("API call successful but no events found, returning empty array");
         return [];
         
       } catch (error) {
