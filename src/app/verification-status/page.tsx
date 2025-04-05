@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -10,7 +10,7 @@ import { web3Service } from "~/lib/web3Service";
 import { getQuestionData, hasFinalizationTimePassed, getTimeRemainingUntilFinalization, formatFinalizationTime, getQuestionsByUser } from "~/lib/realityEthService";
 import Link from "next/link";
 
-export default function VerificationStatusPage() {
+function VerificationStatusContent() {
   const searchParams = useSearchParams();
   const ipfsHash = searchParams?.get("ipfsHash");
   const questionId = searchParams?.get("questionId");
@@ -588,5 +588,25 @@ export default function VerificationStatusPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function VerificationStatusPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto max-w-2xl py-8 px-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Loading Verification Status</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
+            <p className="text-gray-400">Fetching verification data...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <VerificationStatusContent />
+    </Suspense>
   );
 } 
