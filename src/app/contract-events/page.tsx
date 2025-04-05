@@ -101,7 +101,7 @@ export default function ContractEventsPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Smart Contract Events</h1>
+      <h1 className="text-3xl font-bold mb-6">Validated erc7730 metadata</h1>
       <Card>
         <CardHeader>
           <CardTitle>LogHandleResult Events</CardTitle>
@@ -132,8 +132,6 @@ export default function ContractEventsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Block Number</TableHead>
-                        <TableHead>Transaction Hash</TableHead>
                         <TableHead>SpecID</TableHead>
                         <TableHead>Is Accepted</TableHead>
                         <TableHead>Timestamp</TableHead>
@@ -142,12 +140,6 @@ export default function ContractEventsPage() {
                     <TableBody>
                       {events.map((event, index) => (
                         <TableRow key={index}>
-                          <TableCell>{event.blockNumber || 'N/A'}</TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {event.transactionHash ? 
-                              `${event.transactionHash.slice(0, 10)}...${event.transactionHash.slice(-8)}` : 
-                              'N/A'}
-                          </TableCell>
                           <TableCell className="font-mono text-xs">
                             {event.args && event.args.specID ? 
                               `${event.args.specID.slice(0, 10)}...${event.args.specID.slice(-8)}` : 
@@ -173,8 +165,6 @@ export default function ContractEventsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Block Number</TableHead>
-                        <TableHead>Transaction Hash</TableHead>
                         <TableHead>SpecID</TableHead>
                         <TableHead>Is Accepted</TableHead>
                         <TableHead>Timestamp</TableHead>
@@ -182,8 +172,6 @@ export default function ContractEventsPage() {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell>N/A</TableCell>
-                        <TableCell>N/A</TableCell>
                         <TableCell>N/A</TableCell>
                         <TableCell>N/A</TableCell>
                         <TableCell>N/A</TableCell>

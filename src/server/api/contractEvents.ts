@@ -50,13 +50,10 @@ export const contractEventsRouter = createTRPCRouter({
               })
             }
           );
-          
-          console.log(`Curvegrid query response status: ${resp.status}`);
+        
           
           if (resp.ok) {
             const data = await resp.json();
-            console.log("Curvegrid query response:", JSON.stringify(data, null, 2));
-            
             // Check if we actually have rows with data
             if (data.result && data.result.rows && Array.isArray(data.result.rows)) {
               const rows = data.result.rows.filter((row: Record<string, any>) => Object.keys(row).length > 0);
@@ -73,7 +70,6 @@ export const contractEventsRouter = createTRPCRouter({
                   }
                 }));
                 
-                console.log("Found events from Curvegrid:", JSON.stringify(events, null, 2));
                 return events;
               }
             }
