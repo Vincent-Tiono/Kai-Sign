@@ -7,11 +7,11 @@ import {KaiSign} from "../src/KaiSign.sol";
 contract ProposeSpec is Script {
     function setUp() public {}
 
-    function run(address kaisign, string calldata ipfs) public {
+    function run(address kaisign, string calldata ipfs, uint256 bond) public {
         vm.startBroadcast();
         uint256 minBond = KaiSign(kaisign).minBond();
-        KaiSign(kaisign).createSpec(ipfs);
-        KaiSign(kaisign).proposeSpec{value: minBond}(ipfs);
+        bond = bond > 0 ? bond : minBond * 2;
+        KaiSign(kaisign).assertSpecInvalid{value: bond}(ipfs);
         vm.stopBroadcast();
     }
 }

@@ -20,3 +20,7 @@ Fill in `script/input/params.json`
 `ipfs pin add myspec.json`
 
 `forge script --chain sepolia script/ProposeSpec.s.sol --private-key $PRIVATE_KEY --rpc-url $SEPOLIA_RPC_URL --broadcast --sig="run(address,string)"
+
+### Oppose a spec
+
+`forge script --chain sepolia script/OpposeSpec.s.sol --private-key $PRIVATE_KEY --rpc-url $SEPOLIA_RPC_URL --broadcast --sig="run(address,string,uint256)"
