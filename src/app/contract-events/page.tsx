@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { api } from "~/trpc/react";
 import {
   Table,
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "~/components/ui/pagination";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { InfoIcon, AlertTriangle } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 export default function ContractEventsPage() {
   const [page, setPage] = useState(0);
@@ -243,6 +245,16 @@ export default function ContractEventsPage() {
           )}
         </CardContent>
       </Card>
+      
+      <div className="flex justify-between mt-6">
+        <Button 
+          variant="outline" 
+          asChild
+          className="px-8 py-6 text-base border border-gray-700 hover:bg-gray-800 hover:border-gray-600"
+        >
+          <Link href="/verification-results">Back to Verification</Link>
+        </Button>
+      </div>
     </div>
   );
 } 
