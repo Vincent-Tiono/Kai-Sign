@@ -1,5 +1,6 @@
 {
     "chainId": 42220,
     "kaisignContract": "0x64b1601A844F2E83715168E2f7C3e05135CBaB0a",
-    "graphURL": "https://api.studio.thegraph.com/query/41571/realityeth-celo/version/latest"
+    "graphURL": "https://api.studio.thegraph.com/query/41571/realityeth-celo/version/latest",
+    "realityETH": "0x4C2863bb9969dD693Ec487bED72BDfD83C0cA5b3"
 }

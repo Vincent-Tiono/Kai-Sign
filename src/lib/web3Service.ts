@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { getEnvironmentVariable } from "./env";
 
 // Declare the window.ethereum for TypeScript
 declare global {
@@ -74,10 +75,10 @@ const CONTRACT_ABI = [
   }
 ];
 
-// Fixed contract address on Sepolia - all lowercase for safety
-const RAW_CONTRACT_ADDRESS = "0x2d2f90786a365a2044324f6861697e9EF341F858";
-// Sepolia chain ID
-const SEPOLIA_CHAIN_ID = 11155111;
+// Get contract address from environment or use fallback
+const RAW_CONTRACT_ADDRESS = getEnvironmentVariable("KAISIGN_CONTRACT") || "0x64b1601A844F2E83715168E2f7C3e05135CBaB0a";
+// Celo Mainnet chain ID
+const CHAIN_ID = 42220;
 
 export class Web3Service {
   private provider: ethers.BrowserProvider | null = null;
@@ -144,10 +145,10 @@ export class Web3Service {
         throw new Error("Not connected to MetaMask. Please connect first.");
       }
       
-      // Make sure we're on the Sepolia network
+      // Make sure we're on the correct network
       const isCorrectNetwork = await this.checkNetwork();
       if (!isCorrectNetwork) {
-        throw new Error("Please switch to the Sepolia network to continue.");
+        throw new Error("Please switch to the Celo network to continue.");
       }
       
       console.log("Creating spec with IPFS hash:", ipfsHash);
@@ -191,9 +192,9 @@ export class Web3Service {
       const chainId = Number(network.chainId);
       console.log("Current network chainId:", chainId);
       
-      if (chainId !== SEPOLIA_CHAIN_ID) {
-        console.log("Wrong network. Switching to Sepolia...");
-        await this.switchToSepolia();
+      if (chainId !== CHAIN_ID) {
+        console.log("Wrong network. Switching to Celo...");
+        await this.switchToCelo();
         return false;
       }
       
@@ -205,46 +206,67 @@ export class Web3Service {
   }
   
   /**
-   * Request MetaMask to switch to the Sepolia network
+   * Switch to the Celo network
    */
-  async switchToSepolia(): Promise<void> {
+  async switchToCelo(): Promise<void> {
     if (typeof window === 'undefined' || !window.ethereum) return;
     
-    const sepoliaChainIdHex = '0x' + SEPOLIA_CHAIN_ID.toString(16);
-    console.log("Switching to Sepolia with chainId:", sepoliaChainIdHex);
+    const chainIdHex = `0x${CHAIN_ID.toString(16)}`;
+    console.log(`Attempting to switch to Celo network with chainId: ${chainIdHex}`);
     
     try {
-      // Try to switch to Sepolia
+      // Try to switch to Celo
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: sepoliaChainIdHex }],
+        params: [{ chainId: chainIdHex }],
       });
-      console.log("Network switched successfully");
-    } catch (error: any) {
-      console.error("Error switching network:", error);
+      console.log("Successfully switched to Celo network");
+    } catch (switchError: any) {
+      console.log("Switch error:", switchError);
       
-      // If the chain hasn't been added, add it
-      if (error.code === 4902) {
-        console.log("Sepolia not found in wallet. Adding network...");
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: sepoliaChainIdHex,
-              chainName: 'Sepolia Testnet',
+      // This error code indicates that the chain has not been added to MetaMask
+      if (switchError.code === 4902) {
+        console.log("Celo network not found. Attempting to add it...");
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: chainIdHex,
+              chainName: 'Celo Mainnet',
               nativeCurrency: {
-                name: 'Sepolia ETH',
-                symbol: 'ETH',
-                decimals: 18,
+                name: 'CELO',
+                symbol: 'CELO',
+                decimals: 18
               },
-              rpcUrls: ['https://rpc.sepolia.org'],
-              blockExplorerUrls: ['https://sepolia.etherscan.io'],
-            },
-          ],
-        });
-        console.log("Sepolia network added");
+              rpcUrls: ['https://forno.celo.org', 'https://rpc.ankr.com/celo'],
+              blockExplorerUrls: ['https://explorer.celo.org']
+            }]
+          });
+          console.log("Celo network added successfully");
+          
+          // Try switching again after adding
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainIdHex }],
+          });
+        } catch (addError: any) {
+          console.error("Failed to add Celo network:", addError);
+          
+          // Show a more user-friendly error message
+          if (typeof addError === 'object' && addError !== null) {
+            const errorMessage = addError.message || JSON.stringify(addError);
+            throw new Error(`Could not add Celo network: ${errorMessage}`);
+          } else {
+            throw new Error("Could not add Celo network. Please add it manually in MetaMask.");
+          }
+        }
       } else {
-        throw error;
+        console.error("Failed to switch network:", switchError);
+        if (typeof switchError === 'object' && switchError !== null && switchError.message) {
+          throw new Error(`Could not switch to Celo network: ${switchError.message}`);
+        } else {
+          throw new Error("Could not switch to Celo network. Please check MetaMask and try again.");
+        }
       }
     }
   }
@@ -316,10 +338,10 @@ export class Web3Service {
         throw new Error("Not connected to MetaMask. Please connect first.");
       }
       
-      // Make sure we're on the Sepolia network
+      // Make sure we're on the correct network
       const isCorrectNetwork = await this.checkNetwork();
       if (!isCorrectNetwork) {
-        throw new Error("Please switch to the Sepolia network to continue.");
+        throw new Error("Please switch to the Celo network to continue.");
       }
       
       console.log("Handling result for IPFS hash:", ipfsHash);

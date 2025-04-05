@@ -9,7 +9,7 @@ const getEnvVar = (key: string, fallback: string = ""): string => {
 // GraphQL endpoint for Reality.eth
 const REALITY_ETH_GRAPH_URL = getEnvVar(
   "REALITY_ETH_GRAPH_URL",
-  "https://gateway.thegraph.com/api/73380b22a17017c081123ec9c0e34677/subgraphs/id/F3XjWNiNFUTbZhNQjXuhP7oDug2NaPwMPZ5XCRx46h5U"
+  "https://api.studio.thegraph.com/query/41571/realityeth-celo/version/latest"
 );
 
 // Structure for the Reality.eth question data
@@ -35,7 +35,7 @@ export const getQuestionData = async (questionId: string): Promise<RealityEthQue
     // Get reality.eth contract address from env or use default
     const realityEthContract = getEnvVar(
       "REALITY_ETH_CONTRACT",
-      "0xaf33DcB6E8c5c4D9dDF579f53031b514d19449CA"
+      "0x4C2863bb9969dD693Ec487bED72BDfD83C0cA5b3"
     );
     
     // Construct the full ID in format contractAddress-questionId
