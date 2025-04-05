@@ -29,13 +29,21 @@ export default function VerificationResultsPage() {
           </ul>
         </div>
         
-        <div className="flex justify-start">
+        <div className="flex justify-between">
           <Button 
             variant="outline" 
             asChild
             className="px-8 py-6 text-base border border-gray-700 hover:bg-gray-800 hover:border-gray-600"
           >
             <Link href="/">Back to Home</Link>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            asChild
+            className="px-8 py-6 text-base border border-gray-700 hover:bg-gray-800 hover:border-gray-600"
+          >
+            <Link href="/contract-events">Past Results</Link>
           </Button>
         </div>
       </div>
