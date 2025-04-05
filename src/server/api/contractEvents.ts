@@ -23,75 +23,149 @@ export const contractEventsRouter = createTRPCRouter({
         const jwt = rawJwt.trim().replace(/\s*=\s*/, '=').replace(/^"(.*)"$/, '$1');
         
         console.log(`JWT token length: ${jwt.length}`);
+        console.log(`JWT starts with: ${jwt.substring(0, 5)}...`);
         
         if (!jwt) {
           console.error("CURVEGRID_JWT is not set or empty");
           throw new Error("API credentials are not configured");
         }
 
-        // Try getting events from Curvegrid first
-        try {
-          console.log("Sending query to Curvegrid API...");
-          const resp = await fetch(
-            `https://${hostname}/api/v0/queries`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${jwt}`
-              },
-              body: JSON.stringify({
-                events: [
-                  {
-                    eventName: "LogHandleResult(bytes32,bool)",
-                    contractLabel: "kaisign"
-                  }
-                ]
-              })
-            }
-          );
-        
-          
-          if (resp.ok) {
-            const data = await resp.json();
-            // Check if we actually have rows with data
-            if (data.result && data.result.rows && Array.isArray(data.result.rows)) {
-              const rows = data.result.rows.filter((row: Record<string, any>) => Object.keys(row).length > 0);
-              
-              if (rows.length > 0) {
-                // We found actual data, map and return it
-                const events = rows.map((row: Record<string, any>) => ({
-                  blockNumber: row.blockNumber || row.block_number,
-                  transactionHash: row.transactionHash || row.transaction_hash,
-                  timestamp: row.timestamp,
-                  args: {
-                    specID: row.specID,
-                    isAccepted: row.isAccepted === true || row.isAccepted === "true" || row.isAccepted === 1
-                  }
-                }));
-                
-                return events;
-              }
-            }
+        // Use the exact query format provided
+        console.log("Making API request with exact query format...");
+        const resp = await fetch(
+          `https://${hostname}/api/v0/queries`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwt}`
+            },
+            body: JSON.stringify({
+              events: [
+                {
+                  select: [
+                    {
+                      name: "specID",
+                      type: "input",
+                      alias: "",
+                      inputIndex: 0
+                    },
+                    {
+                      name: "isAccepted",
+                      type: "input",
+                      alias: "",
+                      inputIndex: 1
+                    },
+                    {
+                      name: "block_number",
+                      type: "block_number",
+                      alias: ""
+                    },
+                    {
+                      name: "tx_hash",
+                      type: "tx_hash",
+                      alias: ""
+                    },
+                    {
+                      name: "triggered_at",
+                      type: "triggered_at",
+                      alias: ""
+                    }
+                  ],
+                  eventName: "LogHandleResult(bytes32,bool)"
+                }
+              ]
+            })
           }
-        } catch (error) {
-          console.error("Error in Curvegrid query:", error);
-          // Continue to fallback
+        );
+      
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error(`API request failed with status: ${resp.status}`);
+          console.error(`Error response: ${errorText}`);
+          
+          if (resp.status === 401) {
+            throw new Error("Authentication failed - JWT token is invalid or expired");
+          } else if (resp.status === 404) {
+            throw new Error("API endpoint not found - check the hostname");
+          } else if (resp.status >= 500) {
+            throw new Error("Server error - the API service may be experiencing issues");
+          } else {
+            throw new Error(`API request failed with status ${resp.status}: ${errorText.substring(0, 100)}`);
+          }
         }
         
-        // If we're here, Curvegrid didn't return useful results, use known event from Etherscan
-        console.log("Using known event from Etherscan as fallback");
+        const data = await resp.json();
+        console.log("API Response status:", data.status);
+        console.log("API has result:", !!data.result);
         
-        // Return the known event from Etherscan exploration
-        return [{
-          blockNumber: 5469071,
-          transactionHash: "0x41951428c941ecac6a14e630e46126289b32aa5d1149b6330fab57a922656ff0",
-          timestamp: 1712287859, // April 5, 2024
-          args: {
-            specID: "0xD3891AE22ADB082DCC9A01C6B80DC2788C33B9B2FDCD3F4CF79DB87C0AB3755A",
-            isAccepted: false
+        // Log the entire response for debugging
+        console.log("Full API Response:", JSON.stringify(data, null, 2));
+        
+        // Check if we have rows in the result (based on test results)
+        if (data.result && data.result.rows && Array.isArray(data.result.rows)) {
+          const rows = data.result.rows.filter((row: Record<string, any>) => Object.keys(row).length > 0);
+          
+          if (rows.length > 0) {
+            console.log("Found data, row count:", rows.length);
+            // We found actual data, map and return it
+            const events = rows.map((row: Record<string, any>) => {
+              // Access fields with lowercase names based on the test results
+              // Convert string representation of array to actual array if needed
+              let specID = row.specid || row.specID; // Try both casing
+              if (typeof specID === 'string' && specID.startsWith('[') && specID.endsWith(']')) {
+                try {
+                  // Parse string representation of array "[1, 2, 3]" to actual array
+                  const arrayStr = specID.replace(/\[|\]/g, '').split(',').map(s => parseInt(s.trim(), 10));
+                  specID = '0x' + Array.from(arrayStr)
+                    .map((num: number) => num.toString(16).padStart(2, '0'))
+                    .join('');
+                } catch (e) {
+                  console.error("Error parsing specID:", e);
+                  // Keep original if parsing fails
+                }
+              } else if (Array.isArray(specID)) {
+                specID = '0x' + Array.from(specID)
+                  .map((num: number) => num.toString(16).padStart(2, '0'))
+                  .join('');
+              }
+              
+              // Convert timestamp string to Unix timestamp
+              let timestamp = 0;
+              if (row.triggered_at && typeof row.triggered_at === 'string') {
+                timestamp = Math.floor(new Date(row.triggered_at).getTime() / 1000);
+              }
+              
+              // Convert isAccepted value - could be "false" string or boolean false
+              const isAccepted = 
+                row.isaccepted === true || 
+                row.isaccepted === "true" || 
+                row.isaccepted === 1 ||
+                row.isAccepted === true || 
+                row.isAccepted === "true" || 
+                row.isAccepted === 1;
+              
+              const event = {
+                blockNumber: parseInt(row.block_number, 10) || 0,
+                transactionHash: row.tx_hash || "",
+                timestamp: timestamp,
+                args: {
+                  specID: specID,
+                  isAccepted: isAccepted
+                }
+              };
+              console.log("Mapped event:", JSON.stringify(event));
+              return event;
+            });
+            
+            console.log("Returning", events.length, "events");
+            return events;
           }
-        }];
+        }
+        
+        // If we reach here, the API call was successful but no events were found
+        console.log("API call successful but no events found, returning empty array");
+        return [];
         
       } catch (error) {
         console.error("Error fetching contract events:", error);
