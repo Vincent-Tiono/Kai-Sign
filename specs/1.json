@@ -350,7 +350,7 @@
     }
   },
   "metadata": {
-    "owner": "csc",
+    "owner": "grg",
     "info": {
       "legalName": "cszc",
       "url": "cszcz"
@@ -358,9 +358,34 @@
   },
   "display": {
     "formats": {
+      "setFeeReceiver(address)": {
+        "$id": null,
+        "intent": "dad",
+        "screens": null,
+        "fields": [
+          {
+            "$id": null,
+            "label": "Fee Receiver",
+            "format": "addressName",
+            "params": {
+              "types": [
+                "eoa",
+                "wallet"
+              ],
+              "sources": null
+            },
+            "path": "#._feeReceiver",
+            "value": null
+          }
+        ],
+        "required": [
+          "#._feeReceiver"
+        ],
+        "excluded": null
+      },
       "setValidSigner(address)": {
         "$id": null,
-        "intent": "dwa",
+        "intent": "dwad",
         "screens": null,
         "fields": [
           {

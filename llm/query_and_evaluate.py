@@ -2,15 +2,17 @@ import json
 import requests
 import subprocess
 import sys
+import os
+from main import evaluate_specification  # Import the evaluation function
 
 # Global variable to store the final result
 result = False
 
-def load_deployment_config():
-    """Load the deployment configuration to get the kaisignContract address."""
-    with open('../deployment.json', 'r') as f:
-        config = json.load(f)
-    return config
+# def load_deployment_config():
+#     """Load the deployment configuration to get the kaisignContract address."""
+#     with open('../deployment.json', 'r') as f:
+#         config = json.load(f)
+#     return config
 
 
 def query_the_graph(contract_address, api_key):
@@ -47,7 +49,7 @@ def extract_question_data(response_data):
     """Extract question data including questionId, data (IPFS hash), and bond."""
     questions = []
     
-    print(f"Extracting question data from response: {json.dumps(response_data, indent=2)}")
+    # print(f"Extracting question data from response: {json.dumps(response_data, indent=2)}")
     
     if response_data and 'data' in response_data and response_data['data'] and 'questions' in response_data['data']:
         for question in response_data['data']['questions']:
@@ -57,7 +59,7 @@ def extract_question_data(response_data):
                     'data': question['data'],  # IPFS hash
                     'bond': question.get('lastBond', '0')  # Default to 0 if not present
                 })
-                print(f"Found question: {question['questionId']} with data hash: {question['data']}")
+                # print(f"Found question: {question['questionId']} with data hash: {question['data']}")
     else:
         print("No questions found in response data or malformed response")
     
@@ -86,40 +88,58 @@ def fetch_ipfs_content(ipfs_hash):
         sys.exit(1)
 
 def evaluate_ipfs_hash(ipfs_hash):
-    """Run hash_prob.py to evaluate the given IPFS hash and return True for Good, False for Bad."""
+    """Evaluate the given IPFS hash using the LLM and return True for Good, False for Bad."""
     try:
-        result = subprocess.run(
-            ["python", "hash_prob.py", ipfs_hash],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        output = result.stdout.strip()
+        # Print the hash that we're evaluating
+        # print(f"Evaluating IPFS hash: {ipfs_hash}")
         
-        # Parse the output to determine if Good or Bad has higher probability
-        if "Good" in output and "Bad" in output:
-            # Extract probabilities (assuming format like "Good: 0.8, Bad: 0.2")
-            parts = output.split(',')
-            good_prob = float(parts[0].split(':')[1].strip())
-            bad_prob = float(parts[1].split(':')[1].strip())
+        # First fetch the content from IPFS
+        content = fetch_ipfs_content(ipfs_hash)
+        
+        # Save the content to a file in the specs directory
+        
+        # Directly use the imported evaluation function
+        result_dict = evaluate_specification(content)
+        
+        
+        # print(f"Evaluation results: {result_dict}\n")
+        
+        # Parse the result to determine if Good or Bad has higher probability
+        try:
+            # Handle both string with % and integer values
+            good_val = result_dict.get("Good", "0%")
+            bad_val = result_dict.get("Bad", "0%")
+            
+            # Convert to numeric values
+            if isinstance(good_val, str):
+                good_prob = float(good_val.strip("%"))
+            else:
+                good_prob = float(good_val)
+                
+            if isinstance(bad_val, str):
+                bad_prob = float(bad_val.strip("%"))
+            else:
+                bad_prob = float(bad_val)
             
             is_good = good_prob > bad_prob
+            
             result_text = "Good" if is_good else "Bad"
-            print(result_text)
+            print(f"{result_text} - Good: {good_prob}%, Bad: {bad_prob}%")
             return is_good
-        else:
-            print("Bad")
+        except (ValueError, AttributeError):
+            # Default to Bad if parsing fails
+            print("Bad - Unable to parse evaluation results")
             return False
             
-    except subprocess.CalledProcessError as e:
-        print("Bad")
+    except Exception as e:
+        print(f"Bad - Error during evaluation: {e}")
         return False
 
 def main():
     global result
     # Load configuration
-    config = load_deployment_config()
-    contract_address = config.get('kaisignContract')
+    # config = load_deployment_config()
+    contract_address = "0x2d2f90786a365a2044324f6861697e9EF341F858"
     
     if not contract_address:
         print("Bad")
@@ -140,7 +160,7 @@ def main():
         return result
     
     # Process first question
-    question = questions[0]
+    question = questions[5]
     ipfs_hash = question['data']
     
     # Fetch content from IPFS (needed for evaluation)
