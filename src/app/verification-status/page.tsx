@@ -432,6 +432,48 @@ export default function VerificationStatusPage() {
           </div>
           
           <div className="mb-6">
+            <h3 className="text-lg font-medium mb-2">Verification Timing</h3>
+            <div className="p-4 bg-gray-800 rounded-lg">
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-blue-400 mr-3" />
+                <div>
+                  {finalizationTimestamp ? (
+                    <>
+                      <p className="text-gray-300 font-medium">
+                        Finalization Time: {new Date(parseInt(finalizationTimestamp) * 1000).toLocaleString()}
+                      </p>
+                      <p className={`mt-1 text-sm font-bold ${canFinalize ? "text-green-500" : "text-amber-500"}`}>
+                        {canFinalize ? "Finalization time has passed" : timeRemaining}
+                      </p>
+                    </>
+                  ) : createdTimestampValue ? (
+                    <>
+                      <p className="text-gray-300 font-medium">
+                        Estimated Finalization Time: {new Date((parseInt(createdTimestampValue) + (parseInt(timeoutValue || '900'))) * 1000).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Based on creation time ({new Date(parseInt(createdTimestampValue) * 1000).toLocaleString()}) + 
+                        {timeoutValue ? ` timeout (${parseInt(timeoutValue) / 60} minutes)` : " default timeout (15 minutes)"}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-gray-300">Timing information unavailable</p>
+                  )}
+                </div>
+              </div>
+              
+              {canFinalize && (
+                <div className="mt-3 p-3 bg-green-900/30 border border-green-600 rounded-lg">
+                  <p className="text-green-400 font-medium flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Verification period has ended. You can now fetch the result.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="mb-6">
             <h3 className="text-lg font-medium mb-2">Raw API Data</h3>
             <div className="p-4 bg-gray-800 rounded-lg">
               <p className="text-gray-300 font-medium mb-2">
