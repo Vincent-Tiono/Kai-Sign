@@ -1,0 +1,1 @@
+{"events":[{"eventName":"LogHandleResult(bytes32,bool)","select":[{"type":"decoded","name":"specID","inputIndex":0,"alias":"specID"},{"type":"decoded","name":"isAccepted","inputIndex":1,"alias":"isAccepted"}],"filter":{"rule":"and","children":[{"fieldType":"log","name":"blockNumber","operator":"greater_than_or_equal","value":"0"}]}}],"orderBy":"blockNumber","order":"DESC"}

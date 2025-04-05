@@ -8,6 +8,7 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
+    CURVEGRID_JWT: z.string().optional(),
   },
 
   /**
@@ -28,6 +29,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_GTM: process.env.NEXT_PUBLIC_GTM,
     NEXT_PUBLIC_ONETRUST: process.env.NEXT_PUBLIC_ONETRUST,
+    CURVEGRID_JWT: process.env.CURVEGRID_JWT,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
