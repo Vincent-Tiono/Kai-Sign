@@ -13,12 +13,15 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "~/components/ui/pagination";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { InfoIcon } from "lucide-react";
 
 export default function ContractEventsPage() {
   const [page, setPage] = useState(0);
   const [limit] = useState(10);
   const [events, setEvents] = useState<any[]>([]);
   const [rawResponse, setRawResponse] = useState<any>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   
   const { data, isLoading, error } = api.contractEvents.getLogHandleResult.useQuery({
     offset: (page * limit).toString(),
@@ -30,6 +33,13 @@ export default function ContractEventsPage() {
       // Store the raw response for debugging
       setRawResponse(data);
       console.log("API Response:", JSON.stringify(data, null, 2));
+      
+      // Check if there's a status message
+      if (data.message && typeof data.message === 'string') {
+        setStatusMessage(data.message);
+      } else {
+        setStatusMessage(null);
+      }
       
       // Check various possible structures and set events accordingly
       if (Array.isArray(data)) {
@@ -109,6 +119,14 @@ export default function ContractEventsPage() {
             </div>
           ) : (
             <>
+              {statusMessage && (
+                <Alert className="mb-4">
+                  <InfoIcon className="h-4 w-4" />
+                  <AlertTitle>API Status</AlertTitle>
+                  <AlertDescription>{statusMessage}</AlertDescription>
+                </Alert>
+              )}
+              
               {events.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
@@ -151,26 +169,27 @@ export default function ContractEventsPage() {
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-10 border rounded-md">
-                  <p className="text-gray-500 mb-4">No LogHandleResult events found</p>
-                  <p className="text-sm mb-6">The contract exists and is configured correctly, but no events of this type have been emitted yet.</p>
-                  
-                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4 mx-auto max-w-2xl text-left">
-                    <h3 className="text-blue-800 font-medium mb-2">Contract Information</h3>
-                    <p className="text-sm mb-2"><span className="font-semibold">Contract:</span> KaiSign</p>
-                    <p className="text-sm mb-2"><span className="font-semibold">Address:</span> 0x2d2f90786a365a2044324f6861697e9EF341F858</p>
-                    <p className="text-sm mb-2"><span className="font-semibold">Event:</span> LogHandleResult(bytes32,bool)</p>
-                    <p className="text-sm mb-2"><span className="font-semibold">Parameters:</span> specID (bytes32), isAccepted (bool)</p>
-                  </div>
-                  
-                  {rawResponse && (
-                    <div className="mt-4 p-4 bg-gray-100 rounded-md text-left overflow-auto max-h-96 mx-auto max-w-2xl">
-                      <p className="font-semibold mb-2">Raw API Response:</p>
-                      <pre className="text-xs">
-                        {JSON.stringify(rawResponse, null, 2)}
-                      </pre>
-                    </div>
-                  )}
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Block Number</TableHead>
+                        <TableHead>Transaction Hash</TableHead>
+                        <TableHead>SpecID</TableHead>
+                        <TableHead>Is Accepted</TableHead>
+                        <TableHead>Timestamp</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>N/A</TableCell>
+                        <TableCell>N/A</TableCell>
+                        <TableCell>N/A</TableCell>
+                        <TableCell>N/A</TableCell>
+                        <TableCell>N/A</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
               
