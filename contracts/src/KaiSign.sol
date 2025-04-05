@@ -44,11 +44,14 @@ contract KaiSign {
 
     mapping(bytes32 => ERC7730Spec) public specs;
 
-    function createSpec(string calldata ipfs) external {
+    function createSpec(string calldata ipfs) external payable {
         bytes32 specID = keccak256(bytes(ipfs));
         require(specs[specID].createdTimestamp == 0, "Already proposed");
         specs[specID] = ERC7730Spec(uint64(block.timestamp), Status.Submitted, ipfs, bytes32(0));
         emit LogCreateSpec(msg.sender, specID, ipfs);
+        if (msg.value > 0) {
+            proposeSpecByHash(specID);
+        }
     }
 
     function proposeSpecByHash(bytes32 specID) public payable {
