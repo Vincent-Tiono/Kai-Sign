@@ -42,7 +42,7 @@ export default function RootLayout({
       className={`${GeistSans.variable}`}
       suppressHydrationWarning
     >
-      <body>
+      <body suppressHydrationWarning>
         <TRPCReactProvider>
           <Erc7730StoreProvider>
             <ThemeProvider
