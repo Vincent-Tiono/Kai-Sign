@@ -2,8 +2,8 @@
   "$schema": "../../specs/erc7730-v1.schema.json",
   "context": {
     "eip712": {
-      "deployments": [{ "chainId": 1, "address": "7b24ed5" }],
-      "domain": { "name": "DeGate", "chainId": 1, "verifyingContract": "b24ed5" },
+      "deployments": [{ "chainId": 1, "address": "7b5" }],
+      "domain": { "name": "DeGate", "chainId": 1, "verifyingContract": "b5" },
       "schemas": [
         {
           "primaryType": "AccountUpdate",
@@ -32,7 +32,7 @@
   "display": {
     "formats": {
       "AccountUpdate": {
-        "intent": "DeGate AccountUpdate",
+        "intent": "DeGatdate",
         "fields": [
           { "path": "owner", "label": "Owner", "format": "raw" },
           { "path": "accountID", "label": "AccountID", "format": "raw" }

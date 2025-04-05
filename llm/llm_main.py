@@ -146,8 +146,8 @@ def submit_challenge(question_id, current_bond, contract_address):
         tx['gas'] = gas
         
         # Sign and send the transaction
-        signed_tx = w3.eth.account.sign_transaction(tx, private_key=BOT_PRIVATE_KEY)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        signed_tx = w3.eth.account.sign_transaction(tx, private_key=BOT_PRIVATE_KEY).raw_transaction
+        tx_hash = w3.eth.send_raw_transaction(signed_tx)
         
         print(f"Transaction sent: {tx_hash.hex()}")
         print("Waiting for transaction to be mined...")
