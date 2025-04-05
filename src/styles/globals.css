@@ -1,12 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
     --primary: 220.9 39.3% 11%;
@@ -38,9 +39,9 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 224 71.4% 4.1%;
+    --background: 264 59% 6%;
     --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 257 43% 11%;
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
@@ -54,9 +55,9 @@
     --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
+    --border: 263 47% 26%;
+    --input: 257 43% 15%;
+    --ring: 263 64% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -72,11 +73,192 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+html {
+  background-color: #0d041b;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    background-color: #0d041b;
   }
 }
+
+/* Page transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Float animation for GIFs */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-animation-reverse {
+  animation: float 5s ease-in-out infinite reverse;
+}
+
+/* Glow animation */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(102, 75, 218, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(102, 75, 218, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(102, 75, 218, 0.6);
+  }
+}
+
+.glow-animation {
+  animation: glow 4s ease-in-out infinite;
+}
+
+/* Glow effects */
+.text-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Gradient overlay */
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 25% 25%, rgba(117, 66, 245, 0.3) 0%, transparent 50%),
+              radial-gradient(ellipse at 75% 75%, rgba(65, 177, 225, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Glass effect */
+.glass-card {
+  background: rgba(31, 15, 76, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(102, 75, 218, 0.3);
+}
+
+/* Button hover effect */
+.hover-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(102, 75, 218, 0.5);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 5, 29, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 75, 218, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 75, 218, 0.7);
+}
+
+/* Animations for floating NFT icons */
+@keyframes driftAcross {
+  0% { transform: translateX(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+}
+
+@keyframes floatNFT {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(5deg); }
+  50% { transform: translateY(-5px) rotate(0deg); }
+  75% { transform: translateY(-12px) rotate(-5deg); }
+}
+
+/* Animation for rocket ship */
+@keyframes rocketFly {
+  0% { 
+    transform: translateX(-150px) translateY(0) rotate(0deg); 
+    opacity: 0;
+  }
+  10% { 
+    transform: translateX(0) translateY(0) rotate(0deg); 
+    opacity: 1;
+  }
+  20% { 
+    transform: translateX(20vw) translateY(-20px) rotate(-5deg); 
+  }
+  40% { 
+    transform: translateX(40vw) translateY(-35px) rotate(0deg); 
+  }
+  60% { 
+    transform: translateX(60vw) translateY(-20px) rotate(5deg); 
+  }
+  80% { 
+    transform: translateX(80vw) translateY(-30px) rotate(0deg); 
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(calc(100vw + 150px)) translateY(-10px) rotate(0deg); 
+    opacity: 0;
+  }
+}
+
+.nft-icon {
+  position: absolute;
+  animation: floatNFT 7s ease-in-out infinite, driftAcross 25s linear forwards;
+  z-index: 5;
+  filter: drop-shadow(0 0 8px rgba(102, 75, 218, 0.8));
+}
+
+.rocket-ship {
+  position: absolute;
+  animation: rocketFly 15s ease-in-out forwards;
+  z-index: 5;
+  opacity: 0;
+  filter: drop-shadow(0 0 12px rgba(102, 75, 218, 0.8));
+}
+
+.animation-delay-1 { animation-delay: 0s; }
+.animation-delay-2 { animation-delay: 5s; }
+.animation-delay-3 { animation-delay: 10s; }
+.animation-delay-4 { animation-delay: 15s; }
+.animation-delay-5 { animation-delay: 20s; }
+.animation-delay-6 { animation-delay: 30s; }
+.animation-delay-7 { animation-delay: 60s; }
