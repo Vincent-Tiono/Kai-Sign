@@ -1,5 +1,5 @@
 # Kai-Sign
-This is the repository for the project Kai-Sign. hello
+This is the repository for the project Kai-Sign.
 
 ## Project Overview
 Kai-Sign is a platform where users can create and verify ERC7730 metadata. The workflow involves:
