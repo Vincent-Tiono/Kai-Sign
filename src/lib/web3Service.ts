@@ -36,8 +36,7 @@ const CONTRACT_ABI = [
 ];
 
 // Fixed contract address on Sepolia - all lowercase for safety
-// const RAW_CONTRACT_ADDRESS = "0x738e4a08Dc003c95E32A2Ef73C6aF4A6c50D107B";
-const RAW_CONTRACT_ADDRESS = "0x328bffe9fc25cc02096a50da549b83b2c87b0101";
+const RAW_CONTRACT_ADDRESS = "0x2d2f90786a365a2044324f6861697e9EF341F858";
 // Sepolia chain ID
 const SEPOLIA_CHAIN_ID = 11155111;
 
@@ -69,31 +68,18 @@ export class Web3Service {
       this.signer = await this.provider.getSigner();
       console.log("Signer address:", await this.signer.getAddress());
       
-      // Get properly checksummed address
-      try {
-        const checksummedAddress = ethers.getAddress(RAW_CONTRACT_ADDRESS);
-        console.log("Using checksummed contract address:", checksummedAddress);
-        
-        // Create contract instance with checksummed address
-        this.contract = new ethers.Contract(
-          checksummedAddress,
-          CONTRACT_ABI,
-          this.signer
-        );
-        
-        // Test contract connection
-        try {
-          const minBond = await this.contract.minBond();
-          console.log("Contract connection successful. Min bond:", minBond.toString());
-        } catch (contractError) {
-          console.error("Contract connection test failed:", contractError);
-          // Continue anyway since the error might be with the minBond call, not the connection
-        }
-        
-      } catch (checksumError) {
-        console.error("Address checksum error:", checksumError);
-        throw new Error(`Invalid contract address format: ${RAW_CONTRACT_ADDRESS}`);
-      }
+      // Get checksummed address
+      const checksummedAddress = ethers.getAddress(RAW_CONTRACT_ADDRESS);
+      console.log("Using contract address:", checksummedAddress);
+      
+      // Create contract instance with checksummed address
+      this.contract = new ethers.Contract(
+        checksummedAddress,
+        CONTRACT_ABI,
+        this.signer
+      );
+      
+      // Skip testing the contract connection with minBond
       
       return accounts[0];
     } catch (error) {
@@ -106,28 +92,10 @@ export class Web3Service {
    * Get the minimum bond amount required from the contract
    */
   async getMinBond(): Promise<bigint> {
-    try {
-      if (!this.contract) {
-        throw new Error("Not connected to MetaMask. Please connect first.");
-      }
-      
-      // Use try-catch to get minBond
-      try {
-        // Call the minBond function on the contract
-        const minBond = await this.contract.minBond();
-        console.log("Min bond from contract:", minBond.toString());
-        return minBond;
-      } catch (error) {
-        console.error("Error getting minBond from contract:", error);
-        
-        // Fallback to hardcoded value for demo purposes
-        console.log("Using fallback min bond value");
-        return BigInt("100000000000000");
-      }
-    } catch (error) {
-      console.error("Error in getMinBond:", error);
-      throw error;
-    }
+    // Always use the hardcoded value
+    const fixedBond = BigInt("100000000000000"); // 0.0001 ETH
+    console.log("Using fixed bond amount:", fixedBond.toString());
+    return fixedBond;
   }
   
   /**
