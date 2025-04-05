@@ -102,7 +102,7 @@ def evaluate_ipfs_hash(ipfs_hash):
         result_dict = evaluate_specification(content)
         
         
-        print(f"Evaluation results: {result_dict}\n")
+        # print(f"Evaluation results: {result_dict}\n")
         
         # Parse the result to determine if Good or Bad has higher probability
         try:
