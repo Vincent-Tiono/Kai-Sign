@@ -58,7 +58,7 @@ export default function FileUploader() {
         setJsonData(parsedData);
         setErc7730(parsedData);
         toast({
-          title: "File Verified Successfully",
+          title: "File Verification Process Started",
           description: "The ERC7730 JSON file is valid. Uploading to IPFS...",
           variant: "default",
         });
