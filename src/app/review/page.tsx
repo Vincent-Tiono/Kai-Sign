@@ -19,7 +19,6 @@ export default async function Home() {
             <div className="flex items-center gap-4">
               <OperationNotValidated />
               <BackToEdit />
-              <DownloadJsonButton />
               <ReviewJson />
             </div>
           </div>
