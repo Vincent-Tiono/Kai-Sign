@@ -12,9 +12,9 @@ We also built an AI bot to detect bad ERC7730 submissions and challenge them. An
 
 Kai-Sign is a platform where users can create and verify ERC7730 metadata. The workflow involves:
 
-1. Users build ERC7730 metadata specifications
+1. Users build ERC7730 metadata specifications.
 2. These specifications are sent to Reality.eth, a crowdsourced verification system using an escalation game, backstopped by Kleros.
-3. After passing verification, the metadata is curated and displayed on a single page
+3. After passing verification, the metadata is curated and displayed on a single page.
 
 This approach ensures trusted and verified metadata through decentralized consensus mechanisms.
 
