@@ -1,6 +1,7 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
-erc7730
+erc7730==0.3.8
 python-dotenv
-google-genai
+google-genai==1.2.0
+mangum==0.17.0
 # python==3.12.0

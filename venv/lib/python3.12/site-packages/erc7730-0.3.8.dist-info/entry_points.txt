@@ -1,0 +1,3 @@
+[console_scripts]
+erc7730=erc7730.main:app
+

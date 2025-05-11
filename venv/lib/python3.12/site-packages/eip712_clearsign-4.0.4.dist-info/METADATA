@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: eip712-clearsign
+Version: 4.0.4
+Summary: ERC-7730 descriptors validation and utilities.
+License: MIT
+Author: Ledger
+Maintainer: Ledger
+Requires-Python: >= 3.12, <3.13
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Typing :: Typed
+Requires-Dist: pydantic>=2.8.2
+Project-URL: Documentation, https://ledgerhq.github.io/python-eip712
+Project-URL: Homepage, https://ledgerhq.github.io/python-eip712
+Project-URL: Repository, https://github.com/LedgerHQ/python-eip712
+Description-Content-Type: text/markdown
+
+python-eip712
+==============
+
+**This library provides tooling for the EIP712 descriptor standard.**
+
+This library implements:
+ * Reading and writing EIP712 descriptor files into an object model
+

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Path
-
+from fastapi.middleware.cors import CORSMiddleware
 from subprocess import Popen, PIPE
 from dotenv import load_dotenv
 import os
@@ -26,7 +26,16 @@ def load_env():
     env["XDG_CACHE_HOME"] = '/tmp'
     load_dotenv()
 
-app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
+app = FastAPI()
+
+# Add CORS middleware for Vercel deployment
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Message(BaseModel):
     message: str
@@ -36,6 +45,7 @@ class Props(BaseModel):
     address: str | None = None
     chain_id: int | None = None
 
+@app.post("/generateERC7730", response_model=InputERC7730Descriptor, responses={400: {"model": Message}})
 @app.post("/api/py/generateERC7730", response_model=InputERC7730Descriptor, responses={400: {"model": Message}})
 def run_erc7730(params: Props):
     """Generate the 'erc7730' based on an ABI."""
@@ -68,3 +78,14 @@ def run_erc7730(params: Props):
         print('error', e)
         error_message = str(e)
         return JSONResponse(status_code=404, content={"message": error_message})
+
+# Add a simple test route for health check
+@app.get("/")
+def read_root():
+    return {"message": "API is running"}
+
+# Vercel-specific handler
+from mangum import Mangum
+
+# Create handler for AWS Lambda / Vercel
+handler = Mangum(app)

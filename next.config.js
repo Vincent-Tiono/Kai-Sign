@@ -19,7 +19,14 @@ const config = {
         destination:
           process.env.NODE_ENV === "development"
             ? "http://127.0.0.1:8000/api/py/:path*"
-            : "/api/",
+            : "/api/py/:path*",
+      },
+      {
+        source: "/api/py/generateERC7730",
+        destination:
+          process.env.NODE_ENV === "development"
+            ? "http://127.0.0.1:8000/api/py/generateERC7730"
+            : "/api/py/generateERC7730",
       },
       {
         source: "/docs",
